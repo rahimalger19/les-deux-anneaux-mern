@@ -1,0 +1,19 @@
+# Secrets: never commit these
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencies and generated builds
+**/node_modules/
+**/dist/
+**/coverage/
+*.log
+
+# Generated or private uploaded files
+uploads/
+backend/uploads/
+
+# Local editor settings
+.vscode/
+.idea/
+.DS_Store

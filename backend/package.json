@@ -1,0 +1,46 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "check": "tsc --noEmit",
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:public": "tsx src/scripts/seed-public-content.ts",
+    "seed:gallery": "tsx src/scripts/seed-gallery.ts",
+    "seed:partners": "tsx src/scripts/seed-partners.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@react-pdf/renderer": "^4.9.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mjml": "^5.4.1",
+    "mongoose": "^9.10.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.10",
+    "pdfkit": "^0.20.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mjml": "^5.0.0",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.5.1",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pdfkit": "^0.17.6",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}
