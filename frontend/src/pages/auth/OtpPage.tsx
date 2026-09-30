@@ -10,6 +10,7 @@ import {
   verifyGuestOtp,
 } from "../../services/booking.service";
 import { trackAnalyticsEvent } from "../../services/analytics.service";
+import BookingStepper from "../../components/booking/BookingStepper";
 
 type OtpLocationState = {
   developmentOtp?: string;
@@ -30,12 +31,14 @@ function getInitialOtpExpiry(
   fallbackTtlSeconds: number
 ) {
   if (storageKey) {
-    const storedExpiry = Number(
-      window.sessionStorage.getItem(storageKey)
-    );
+    const storedValue = window.sessionStorage.getItem(storageKey);
 
-    if (Number.isFinite(storedExpiry)) {
-      return storedExpiry;
+    if (storedValue !== null) {
+      const storedExpiry = Number(storedValue);
+
+      if (Number.isFinite(storedExpiry) && storedExpiry > 0) {
+        return storedExpiry;
+      }
     }
   }
 
@@ -99,6 +102,7 @@ useEffect(() => {
       <main className="mx-auto max-w-xl px-6 py-16">
         <h1 className="font-serif text-4xl">Code OTP introuvable</h1>
 
+      <BookingStepper currentStep={4} />
         <Link
           to="/reservation"
           className="mt-6 inline-block rounded-full bg-black px-5 py-3 text-ivory"

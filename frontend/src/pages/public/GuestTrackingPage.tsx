@@ -119,11 +119,11 @@ export default function GuestTrackingPage() {
 
     try {
       setPaymentMessage("");
-      setSelectedMethod(method);
 
-      const createdPayment = await createPayment(booking.id, method);
+const createdPayment = await createPayment(booking.id, method);
 
-      setPayment(createdPayment);
+setPayment(createdPayment);
+setSelectedMethod(method);
       setPaymentMessage(
         "Méthode de paiement sélectionnée. Vous pouvez maintenant envoyer votre preuve."
       );

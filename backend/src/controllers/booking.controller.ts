@@ -22,6 +22,7 @@ import {
 import { AvailabilityBlock } from "../models/AvailabilityBlock";
 import { sendOtpSms } from "../services/sms.service";
 import mongoose from "mongoose";
+import { createProFormaForBooking } from "../services/proforma.service";
 
 const activeStatuses: BookingStatus[] = [
   "HELD",
@@ -347,12 +348,29 @@ export async function verifyGuestOtp(req: Request, res: Response) {
 
     const booking = await Booking.findById(bookingId);
 
-    if (!booking || booking.status !== "OTP_PENDING") {
-      return res.status(404).json({
-        success: false,
-        message: "Booking draft not found",
-      });
-    }
+   if (!booking) {
+  return res.status(404).json({
+    success: false,
+    message: "Booking not found",
+  });
+}
+
+if (booking.status === "HELD") {
+  return res.json({
+    success: true,
+    message: "OTP already verified. Your slot is still held.",
+    bookingId: booking._id,
+    trackingToken: booking.guestToken,
+    holdExpiresAt: booking.holdExpiresAt,
+  });
+}
+
+if (booking.status !== "OTP_PENDING") {
+  return res.status(409).json({
+    success: false,
+    message: `This OTP can no longer be verified. Current status: ${booking.status}`,
+  });
+}
 
     const otpResult = await verifyOtpForBooking(bookingId, String(code));
 
@@ -385,17 +403,21 @@ booking.status = "HELD";
     );
 
     try {
-      await booking.save();
-    } catch (error: any) {
-      if (error?.code === 11000) {
-        return res.status(409).json({
-          success: false,
-          message: "This slot was booked by another client",
-        });
-      }
+  await booking.save();
+} catch (error: any) {
+  if (error?.code === 11000) {
+    return res.status(409).json({
+      success: false,
+      message: "This slot was booked by another client",
+    });
+  }
 
-      throw error;
-    }
+  throw error;
+}
+
+const proForma = await createProFormaForBooking(
+  booking._id.toString()
+);
 
     return res.json({
       success: true,
@@ -403,6 +425,7 @@ booking.status = "HELD";
       bookingId: booking._id,
       trackingToken: booking.guestToken,
       holdExpiresAt: booking.holdExpiresAt,
+      proFormaNumber: proForma.proFormaNumber,
     });
   } catch (error) {
     console.error("Verify OTP error:", error);

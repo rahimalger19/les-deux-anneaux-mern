@@ -1,5 +1,8 @@
 import { Router } from "express";
 import {
+  createPayment,
+  getBookingPayment,
+  uploadPaymentProof,
   createMyPayment,
   getMyPayments,
   getPaymentInstructions,
@@ -23,6 +26,16 @@ const paymentAdminRoles = [
 ] as const;
 
 router.get("/instructions", getPaymentInstructions);
+
+router.get("/tracking/:token", getBookingPayment);
+
+router.post("/tracking/:token", createPayment);
+
+router.post(
+  "/tracking/:token/proof",
+  proofUpload.single("proof"),
+  uploadPaymentProof
+);
 
 router.get("/my", requireAuth, getMyPayments);
 

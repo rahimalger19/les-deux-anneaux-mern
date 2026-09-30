@@ -231,18 +231,60 @@ type PricingRuleSeed = {
   market: "RESIDENT" | "DIASPORA";
   slot: Slot;
   season: "LOW" | "NORMAL" | "HIGH";
+  dayType: "ALL" | "WEEKDAY" | "WEEKEND";
   minGuests: number;
   maxGuests: number;
   priceDZD: number;
   active: boolean;
 };
 
-const pricingRules: PricingRuleSeed[] = [
-  { market: "RESIDENT", slot: "AFTERNOON", season: "NORMAL", minGuests: 1, maxGuests: 500, priceDZD: 180000, active: true },
-  { market: "RESIDENT", slot: "EVENING", season: "NORMAL", minGuests: 1, maxGuests: 500, priceDZD: 220000, active: true },
-  { market: "RESIDENT", slot: "NIGHT", season: "NORMAL", minGuests: 1, maxGuests: 500, priceDZD: 250000, active: true },
-  { market: "RESIDENT", slot: "DAY", season: "NORMAL", minGuests: 1, maxGuests: 500, priceDZD: 300000, active: true },
+const residentPricingRules: Array<Omit<PricingRuleSeed, "market">> = [
+  {
+    slot: "AFTERNOON",
+    season: "NORMAL",
+    dayType: "ALL",
+    minGuests: 1,
+    maxGuests: 500,
+    priceDZD: 180000,
+    active: true,
+  },
+  {
+    slot: "EVENING",
+    season: "NORMAL",
+    dayType: "ALL",
+    minGuests: 1,
+    maxGuests: 500,
+    priceDZD: 220000,
+    active: true,
+  },
+  {
+    slot: "NIGHT",
+    season: "NORMAL",
+    dayType: "ALL",
+    minGuests: 1,
+    maxGuests: 500,
+    priceDZD: 250000,
+    active: true,
+  },
+  {
+    slot: "DAY",
+    season: "NORMAL",
+    dayType: "ALL",
+    minGuests: 1,
+    maxGuests: 500,
+    priceDZD: 300000,
+    active: true,
+  },
 ];
+
+const pricingRules: PricingRuleSeed[] = (
+  ["RESIDENT", "DIASPORA"] as const
+).flatMap((market) =>
+  residentPricingRules.map((rule) => ({
+    ...rule,
+    market,
+  }))
+);
 
 async function seed() {
   try {
@@ -251,7 +293,12 @@ async function seed() {
     for (const eventType of eventTypes) {
       await EventType.updateOne(
         { key: eventType.key },
-        { $set: eventType },
+        {
+  $set: {
+    ...eventType,
+    diasporaDepositPercent: eventType.depositPercent,
+  },
+},
         { upsert: true }
       );
     }
@@ -259,22 +306,31 @@ async function seed() {
     for (const pack of packs) {
       await Pack.updateOne(
         { key: pack.key },
-        { $set: pack },
+        {
+  $set: {
+    ...pack,
+    diasporaBasePriceDZD: pack.basePriceDZD,
+    diasporaExtraGuestPriceDZD: pack.extraGuestPriceDZD,
+  },
+},
         { upsert: true }
       );
     }
 
     for (const pricingRule of pricingRules) {
-      await PricingRule.updateOne(
-        {
-          slot: pricingRule.slot,
-          season: pricingRule.season,
-          
-        },
-        { $set: pricingRule },
-        { upsert: true }
-      );
-    }
+  await PricingRule.updateOne(
+    {
+      market: pricingRule.market,
+      slot: pricingRule.slot,
+      season: pricingRule.season,
+      dayType: pricingRule.dayType,
+      minGuests: pricingRule.minGuests,
+      maxGuests: pricingRule.maxGuests,
+    },
+    { $set: pricingRule },
+    { upsert: true }
+  );
+}
 
     console.log("Catalogue seed completed successfully.");
   } catch (error) {

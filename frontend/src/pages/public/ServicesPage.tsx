@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useLanguage } from "../../hooks/useLanguage";
 import {
@@ -17,7 +17,14 @@ function formatDZD(amount: number) {
 
 export default function ServicesPage() {
   const { language } = useLanguage();
+  const location = useLocation();
 
+const navigationState = location.state as { returnTo?: string } | null;
+
+const returnTo =
+  navigationState?.returnTo === "/reservation/details"
+    ? "/reservation/details"
+    : "/reservation/creneau";
   const {
     optionKeys: selectedServiceKeys,
     setOptionKeys,
@@ -62,7 +69,7 @@ export default function ServicesPage() {
           </p>
 
           <Link
-            to="/reservation"
+            to={returnTo} 
             className="rounded-full bg-gold px-5 py-3 font-semibold text-black"
           >
             Continuer vers la réservation
@@ -109,11 +116,11 @@ const canSelect =
                   {service.description[locale]}
                 </p>
 
-                {service.priceDZD !== undefined && (
-                  <p className="mt-5 font-semibold">
-                    {formatDZD(service.priceDZD)}
-                  </p>
-                )}
+                <p className="mt-5 font-semibold">
+  {service.priceDZD !== undefined
+    ? formatDZD(service.priceDZD)
+    : "Tarif communiqué lors de la réservation"}
+</p>
 
                 {canSelect && (
                   <button

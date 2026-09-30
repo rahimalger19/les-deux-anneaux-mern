@@ -15,14 +15,12 @@ import { paymentProofDirectory } from "../middleware/upload.middleware";
 
 export async function createPayment(req: Request, res: Response) {
   try {
-    const rawBookingId = req.params.bookingId;
-    const bookingId = Array.isArray(rawBookingId)
-      ? rawBookingId[0]
-      : rawBookingId;
+    const rawToken = req.params.token;
+const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
 
-    const { method } = req.body;
+const { method } = req.body;
 
-    if (!bookingId || !method) {
+if (!token || !method) {
       return res.status(400).json({
         success: false,
         message: "bookingId and payment method are required",
@@ -35,11 +33,18 @@ export async function createPayment(req: Request, res: Response) {
         message: "Invalid payment method",
       });
     }
+    const booking = await Booking.findOne({ guestToken: token });
 
+if (!booking) {
+  return res.status(404).json({
+    success: false,
+    message: "Booking not found",
+  });
+}
     const payment = await createPaymentForBooking(
-      bookingId,
-      method as PaymentMethod
-    );
+  booking._id.toString(),
+  method as PaymentMethod
+);
 
     return res.status(201).json({
       success: true,
@@ -422,7 +427,7 @@ export async function rejectPayment(req: Request, res: Response) {
   proofStorageKey: { $exists: true, $ne: "" },
 }).select("+proofStorageKey");
 
-    if (!payment || payment.status !== "PENDING" || !payment.proofUrl) {
+    if (!payment || payment.status !== "PENDING" || !payment.proofStorageKey) {
       return res.status(404).json({
         success: false,
         message: "Pending payment proof not found",

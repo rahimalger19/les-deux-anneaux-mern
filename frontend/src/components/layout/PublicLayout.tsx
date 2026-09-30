@@ -6,9 +6,7 @@ export default function PublicLayout() {
   return (
     <>
       <Header />
-      <main>
-        <Outlet />
-      </main>
+      <Outlet />
       <Footer />
     </>
   );

@@ -88,7 +88,8 @@ export default function App() {
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/packs-tarifs" element={<PacksPricingPage />} />
             <Route path="/evenements/:type" element={<EventPage />} />
-            <Route path="/reservation" element={<ReservationPage />} />
+            <Route path="/reservation" element={<Navigate to="/reservation/creneau" replace />}/>
+            <Route path="/reservation/:step" element={<ReservationPage />} />
             <Route path="/galerie" element={<GalleryPage />} />
             <Route path="/avis" element={<ReviewsPage />} />
             <Route path="/partenaires" element={<PartnersPage />} />
@@ -116,8 +117,9 @@ export default function App() {
   <Route path="/espace/documents" element={<DocumentsPage />} />
   <Route path="/espace/paiements" element={<PaymentsPage />} />
   <Route path="/espace/preuves" element={<ProofsPage />} />
-  <Route path="/espace/nouvelle-reservation" element={<ReservationPage />}/>
-  <Route path="/espace/factures" element={<InvoicesPage />} />
+  <Route path="/espace/nouvelle-reservation" element={<Navigate to="/reservation/creneau" replace />}
+/>
+    <Route path="/espace/factures" element={<InvoicesPage />} />
   <Route path="/espace/rendez-vous" element={<AppointmentsPage />} />
   <Route path="/espace/devis" element={<QuotesPage />} />
   <Route path="/espace/messages" element={<MessagesPage />} />
