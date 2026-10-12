@@ -6,31 +6,27 @@ import type {
 } from "../types/payment.types";
 
 export async function createPayment(
-  bookingId: string,
+  trackingToken: string,
   method: PaymentMethod
 ) {
-  const response = await api.post<{
-    success: boolean;
-    payment: Payment;
-  }>(`/payments/${bookingId}`, {
-    method,
-  });
+  const response = await api.post(
+    `/payments/tracking/${trackingToken}`,
+    { method }
+  );
 
-  return response.data.payment;
+  return response.data.payment as Payment;
 }
 
-export async function getBookingPayment(
-  bookingId: string
-) {
-  const response = await api.get<{
-    success: boolean;
-    payment: Payment | null;
-  }>(`/payments/${bookingId}`);
+export async function getBookingPayment(trackingToken: string) {
+  const response = await api.get(
+    `/payments/tracking/${trackingToken}`
+  );
 
-  return response.data.payment;
+  return response.data.payment as Payment | null;
 }
 
-export async function getPaymentInstructions() {
+export async function getPaymentInstructions(): Promise<PaymentInstructions> {
+  
   const response = await api.get<{
     success: boolean;
     instructions: PaymentInstructions;
@@ -40,17 +36,17 @@ export async function getPaymentInstructions() {
 }
 
 export async function uploadPaymentProof(
-  bookingId: string,
+  trackingToken: string,
   file: File
 ) {
   const formData = new FormData();
-
   formData.append("proof", file);
 
   const response = await api.post(
-    `/payments/${bookingId}/proof`,
+    `/payments/tracking/${trackingToken}/proof`,
     formData
   );
 
   return response.data;
 }
+

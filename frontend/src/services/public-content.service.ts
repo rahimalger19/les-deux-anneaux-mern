@@ -1,5 +1,3 @@
-
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 export type LocalizedText = {
@@ -47,6 +45,7 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export async function getPublicServices() {
+  
   const data = await getJson<{ services: PublicService[] }>("/public/services");
   return data.services;
 }
@@ -57,6 +56,7 @@ export async function getVenueInfo() {
 }
 
 export async function getPublicFaqs() {
+  
   const data = await getJson<{ faqs: Faq[] }>("/public/faq");
   return data.faqs;
 }

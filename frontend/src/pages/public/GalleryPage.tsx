@@ -42,12 +42,20 @@ export default function GalleryPage() {
     void loadGallery();
   }, []);
 
-  async function selectFilter(eventTypeKey: string) {
-    setSelectedEventType(eventTypeKey);
-    setSelectedAlbum("");
+  
+async function selectFilter(eventTypeKey: string) {
+  setSelectedEventType(eventTypeKey);
+  setSelectedAlbum("");
 
-    await loadGallery(eventTypeKey, "");
-  }
+  const [galleryItems, galleryAlbums] = await Promise.all([
+    getGalleryItems(eventTypeKey || undefined),
+    getGalleryAlbums(eventTypeKey || undefined),
+  ]);
+
+  setItems(galleryItems);
+  setAlbums(galleryAlbums);
+}
+
 
   async function selectAlbum(album: string) {
     setSelectedAlbum(album);

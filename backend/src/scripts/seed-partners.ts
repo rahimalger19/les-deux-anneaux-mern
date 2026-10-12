@@ -10,17 +10,17 @@ dotenv.config();
   Do not add partners that do not work with Les Deux Anneaux.
 */
 const partners : Partial<IPartner>[] = [
-  /*
+ 
   {
-    name: "Partner name",
+    name: "Hamoud Boualem",
     category: "CATERER",
-    logoUrl: "/images/partners/partner-logo.jpg",
-    websiteUrl: "https://partner-website.example",
+    logoUrl: "../../frontend/public/images/partners/hamoud.png",
+    websiteUrl: "https://hamoud-boualem.com/fr/",
     displayOrder: 1,
     clickCount: 0,
     active: true,
   },
-  */
+ 
 ];
 
 async function seedPartners() {

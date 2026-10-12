@@ -12,10 +12,35 @@ export default function PartnersPage() {
     getPartners().then(setPartners);
   }, []);
 
-  async function openPartner(partnerId: string) {
+  
+async function openPartner(partnerId: string) {
+  try {
     const websiteUrl = await trackPartnerClick(partnerId);
-    window.open(websiteUrl, "_blank", "noopener,noreferrer");
+
+    if (!websiteUrl) {
+      throw new Error("Partner website unavailable");
+    }
+
+    const url = new URL(websiteUrl);
+
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      throw new Error("Invalid partner website URL");
+    }
+
+    window.open(url.href, "_blank", "noopener,noreferrer");
+  } catch {
+    console.error("Unable to open partner website.");
   }
+}
+
+ 
+const categoryLabels: Record<Partner["category"], string> = {
+  CATERER: "Traiteur",
+  DECOR: "Décoration",
+  PHOTO: "Photographie",
+  DJ: "DJ",
+  HOTEL: "Hôtel",
+};
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
@@ -41,7 +66,7 @@ export default function PartnersPage() {
               <h2 className="mt-5 font-semibold">{partner.name}</h2>
 
               <p className="mt-2 text-sm text-black/60">
-                {partner.category}
+                {categoryLabels[partner.category]}
               </p>
                {partner.promoCode ? (
   <p className="mt-3 text-sm font-semibold text-gold">

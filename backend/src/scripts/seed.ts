@@ -187,7 +187,10 @@ const packs = [
     basePriceDZD: 180000,
     extraGuestPriceDZD: 1200,
     includedGuests: 150,
-    includedItems: ["Salle", "Tables", "Chaises", "Éclairage standard"],
+    includedItems: [
+      "hall-rental",
+      "table-decoration",
+    ],
     active: true,
   },
   {
@@ -201,7 +204,13 @@ const packs = [
     basePriceDZD: 280000,
     extraGuestPriceDZD: 1600,
     includedGuests: 150,
-    includedItems: ["Salle", "Décoration", "Sono", "Éclairage", "Staff"],
+    includedItems: [
+      "hall-rental",
+      "table-decoration",
+      "sound-system",
+      "decorative-lighting",
+      "event-staff",
+    ],
     active: true,
   },
   {
@@ -216,16 +225,18 @@ const packs = [
     extraGuestPriceDZD: 2200,
     includedGuests: 150,
     includedItems: [
-      "Salle",
-      "Décoration premium",
-      "Scène",
-      "Sono premium",
-      "Éclairage premium",
-      "Staff",
+      "hall-rental",
+      "bride-groom-room",
+      "stage-rental",
+      "sound-system",
+      "decorative-lighting",
+      "event-staff",
+      "table-decoration",
     ],
     active: true,
   },
 ];
+
 
 type PricingRuleSeed = {
   market: "RESIDENT" | "DIASPORA";

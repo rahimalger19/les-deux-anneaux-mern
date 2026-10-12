@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import {
+  addReviewComment,
   getPublishedReviews,
   likeReview,
   type Review,
 } from "../../services/community.service";
+import { useAuth } from "../../hooks/useAuth";
+
 
 export default function ReviewsPage() {
+  const { user } = useAuth();
+const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [reviews, setReviews] = useState<Review[]>([]);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState("");
@@ -37,6 +42,37 @@ export default function ReviewsPage() {
       setMessage("Impossible d’enregistrer votre like.");
     }
   }
+
+  async function handleComment(reviewId: string) {
+  const message = (commentTexts[reviewId] || "").trim();
+
+  if (message.length < 2) {
+    setMessage("Votre commentaire doit contenir au moins 2 caractères.");
+    return;
+  }
+
+  try {
+    const result = await addReviewComment(reviewId, message);
+
+    setReviews((current) =>
+      current.map((review) =>
+        review._id === reviewId
+          ? {
+              ...review,
+              comments: [...review.comments, result.comment],
+            }
+          : review
+      )
+    );
+
+    setCommentTexts((current) => ({
+      ...current,
+      [reviewId]: "",
+    }));
+  } catch {
+    setMessage("Impossible d’ajouter le commentaire.");
+  }
+}
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
@@ -91,6 +127,51 @@ export default function ReviewsPage() {
                   {review.officialReply}
                 </section>
               ) : null}
+
+              {review.comments.length > 0 ? (
+  <section className="mt-5 space-y-3">
+    <h3 className="font-semibold">
+      Commentaires ({review.comments.length})
+    </h3>
+
+    {review.comments.map((comment) => (
+      <div
+        key={comment._id}
+        className="rounded-xl bg-black/5 p-4"
+      >
+        <strong>{comment.authorName}</strong>
+        <p className="mt-1 text-sm text-black/70">
+          {comment.message}
+        </p>
+      </div>
+    ))}
+  </section>
+) : null}
+
+{user ? (
+  <div className="mt-5 flex gap-3">
+    <input
+      value={commentTexts[review._id] || ""}
+      onChange={(event) =>
+        setCommentTexts((current) => ({
+          ...current,
+          [review._id]: event.target.value,
+        }))
+      }
+      maxLength={1000}
+      placeholder="Ajouter un commentaire"
+      className="flex-1 rounded-xl border border-black/15 px-4 py-3"
+    />
+
+    <button
+      type="button"
+      onClick={() => void handleComment(review._id)}
+      className="rounded-xl bg-gold px-4 py-3 font-semibold text-black"
+    >
+      Publier
+    </button>
+  </div>
+) : null} 
 
               <button
                 type="button"

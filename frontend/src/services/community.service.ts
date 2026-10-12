@@ -44,6 +44,13 @@ export type ClientNotification = {
   createdAt: string;
 };
 
+export type ReviewComment = {
+  _id: string;
+  authorName: string;
+  message: string;
+  createdAt: string;
+};
+
 function getGalleryVisitorId() {
   const storageKey = "les-deux-anneaux-gallery-visitor-id";
   const existing = localStorage.getItem(storageKey);
@@ -198,6 +205,7 @@ export type Review = {
   officialReply?: string;
   likeCount: number;
   createdAt: string;
+  comments: ReviewComment[];
 };
 
 export async function getPartners() {
@@ -283,4 +291,20 @@ export async function createMyReview(data: {
 
   const response = await api.post("/reviews/my", formData);
   return response.data;
+}
+
+export async function addReviewComment(
+  reviewId: string,
+  message: string
+) {
+  const response = await api.post(
+    `/reviews/${reviewId}/comments`,
+    { message }
+  );
+
+  return response.data as {
+    success: boolean;
+    message: string;
+    comment: ReviewComment;
+  };
 }

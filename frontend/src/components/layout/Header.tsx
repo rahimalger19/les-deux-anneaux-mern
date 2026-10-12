@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useCurrency } from "../../hooks/useCurrency";
 import { useLanguage } from "../../hooks/useLanguage";
 import { useTheme } from "../../hooks/useTheme";
+import { useAuth } from "../../hooks/useAuth";
 
 const navigation = [
   { to: "/", key: "nav.home" },
@@ -20,6 +21,7 @@ export default function Header() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const { currency, setCurrency } = useCurrency();
+  const { user } = useAuth();
 
   const logo =
     resolvedTheme === "dark"
@@ -37,6 +39,7 @@ export default function Header() {
           />
         </Link>
 
+        {/* Desktop navigation */}
         <nav className="hidden items-center gap-4 lg:flex">
           {navigation.map((item) => (
             <Link
@@ -84,6 +87,33 @@ export default function Header() {
             <option value="system">System</option>
           </select>
 
+          {/* Authentication links */}
+          {user ? (
+            <Link
+              to="/espace"
+              className="rounded-full border border-black/20 px-4 py-2.5 text-sm font-semibold text-black dark:border-white/20 dark:text-ivory"
+            >
+              Mon espace
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/connexion"
+                className="text-sm font-semibold text-black transition hover:text-gold dark:text-ivory"
+              >
+                Connexion
+              </Link>
+
+              <Link
+                to="/inscription"
+                className="rounded-full border border-black/20 px-4 py-2.5 text-sm font-semibold text-black dark:border-white/20 dark:text-ivory"
+              >
+                S’inscrire
+              </Link>
+            </>
+          )}
+
+          {/* Reservation button */}
           <Link
             to="/reservation"
             className="rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-ivory dark:bg-gold dark:text-black"
@@ -92,15 +122,19 @@ export default function Header() {
           </Link>
         </nav>
 
+        {/* Mobile menu button */}
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-expanded={menuOpen}
           className="rounded-lg p-2 text-2xl text-black dark:text-ivory lg:hidden"
         >
           {menuOpen ? "×" : "☰"}
         </button>
       </div>
 
+      {/* Mobile navigation */}
       {menuOpen && (
         <nav className="flex flex-col gap-2 border-t border-black/10 bg-ivory px-5 py-6 dark:border-white/10 dark:bg-black lg:hidden">
           {navigation.map((item) => (
@@ -114,6 +148,36 @@ export default function Header() {
             </Link>
           ))}
 
+          {/* Authentication links */}
+          {user ? (
+            <Link
+              to="/espace"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
+            >
+              Mon espace
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/connexion"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
+              >
+                Connexion
+              </Link>
+
+              <Link
+                to="/inscription"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
+              >
+                S’inscrire
+              </Link>
+            </>
+          )}
+
+          {/* Mobile selectors */}
           <div className="mt-3 grid grid-cols-3 gap-2">
             <select
               value={language}
@@ -152,6 +216,7 @@ export default function Header() {
             </select>
           </div>
 
+          {/* Mobile reservation button */}
           <Link
             to="/reservation"
             onClick={() => setMenuOpen(false)}

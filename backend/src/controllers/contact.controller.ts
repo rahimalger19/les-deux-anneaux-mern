@@ -47,75 +47,88 @@ export async function createContactMessage(req: Request, res: Response) {
       });
     }
 
-  
-const isAppointmentRequest = requestType === "APPOINTMENT";
+    const isAppointmentRequest = requestType === "APPOINTMENT";
 
-if (
-  isAppointmentRequest &&
-  (!CONTACT_APPOINTMENT_TYPES.includes(
-    requestedAppointmentType as (typeof CONTACT_APPOINTMENT_TYPES)[number]
-  ) ||
-    !CONTACT_APPOINTMENT_SLOTS.includes(
-      requestedAppointmentSlot as (typeof CONTACT_APPOINTMENT_SLOTS)[number]
-    ))
-) {
-  return res.status(400).json({
-    success: false,
-    message:
-      "Le type de rendez-vous et le créneau souhaité sont obligatoires.",
-  });
-}
+    if (
+      isAppointmentRequest &&
+      (!CONTACT_APPOINTMENT_TYPES.includes(
+        requestedAppointmentType as (typeof CONTACT_APPOINTMENT_TYPES)[number]
+      ) ||
+        !CONTACT_APPOINTMENT_SLOTS.includes(
+          requestedAppointmentSlot as (typeof CONTACT_APPOINTMENT_SLOTS)[number]
+        ))
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Le type de rendez-vous et le créneau souhaité sont obligatoires.",
+      });
+    }
 
-type ContactLanguage = "fr-DZ" | "ar-DZ" | "en";
-type ContactRequestType = "GENERAL" | "APPOINTMENT";
-type AppointmentRequestType = "VISIT" | "VIDEO";
-type AppointmentRequestSlot = "DAY" | "EVENING" | "NIGHT";
+    if (!isAppointmentRequest) {
+      const allowedCallbackSlots = [
+        "DAY",
+        "AFTERNOON",
+        "EVENING",
+        "NIGHT",
+      ];
 
-const safeLanguage = language as ContactLanguage;
-const safeRequestType = requestType as ContactRequestType;
+      if (!allowedCallbackSlots.includes(callbackSlot)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid callback slot.",
+        });
+      }
+    }
 
-const safeAppointmentType = isAppointmentRequest
-  ? (requestedAppointmentType as AppointmentRequestType)
-  : undefined;
+    type ContactLanguage = "fr-DZ" | "ar-DZ" | "en";
+    type ContactRequestType = "GENERAL" | "APPOINTMENT";
+    type AppointmentRequestType = "VISIT" | "VIDEO";
+    type AppointmentRequestSlot = "DAY" | "EVENING" | "NIGHT";
 
-const safeAppointmentSlot = isAppointmentRequest
-  ? (requestedAppointmentSlot as AppointmentRequestSlot)
-  : undefined;
+    const safeLanguage = language as ContactLanguage;
+    const safeRequestType = requestType as ContactRequestType;
 
-const contactMessage = await ContactMessage.create({
-  name,
-  phone,
-  email,
-  subject,
-  message,
-  language: safeLanguage,
-  callbackSlot,
-  source: "PUBLIC_CONTACT",
-  requestType: safeRequestType,
-  requestedAppointmentType: safeAppointmentType,
-  requestedAppointmentSlot: safeAppointmentSlot,
-});
+    const safeAppointmentType = isAppointmentRequest
+      ? (requestedAppointmentType as AppointmentRequestType)
+      : undefined;
 
-let appointmentId: string | undefined;
+    const safeAppointmentSlot = isAppointmentRequest
+      ? (requestedAppointmentSlot as AppointmentRequestSlot)
+      : undefined;
 
-if (isAppointmentRequest) {
-  const appointment = await Appointment.create({
-    contactMessageId: contactMessage._id,
-    guestName: name,
-    guestEmail: email,
-    guestPhone: phone,
-    source: "CONTACT",
-    type: safeAppointmentType as AppointmentRequestType,
-    requestedSlot: safeAppointmentSlot as AppointmentRequestSlot,
-    timezone: "Africa/Algiers",
-    notes: message,
-    status: "PENDING",
-  });
+    const contactMessage = await ContactMessage.create({
+      name,
+      phone,
+      email,
+      subject,
+      message,
+      language: safeLanguage,
+      callbackSlot,
+      source: "PUBLIC_CONTACT",
+      requestType: safeRequestType,
+      requestedAppointmentType: safeAppointmentType,
+      requestedAppointmentSlot: safeAppointmentSlot,
+    });
 
-  appointmentId = appointment._id.toString();
-}
+    let appointmentId: string | undefined;
 
+    if (isAppointmentRequest) {
+      const appointment = await Appointment.create({
+        contactMessageId: contactMessage._id,
+        guestName: name,
+        guestEmail: email,
+        guestPhone: phone,
+        source: "CONTACT",
+        type: safeAppointmentType as AppointmentRequestType,
+        requestedSlot: safeAppointmentSlot as AppointmentRequestSlot,
+        timezone: "Africa/Algiers",
+        notes: message,
+        status: "PENDING",
+      });
 
+      appointmentId = appointment._id.toString();
+    }
 
     return res.status(201).json({
       success: true,

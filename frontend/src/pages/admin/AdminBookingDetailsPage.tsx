@@ -189,7 +189,7 @@ export default function AdminBookingDetailsPage() {
   }
 
   const priceLocked =
-  Boolean(booking.proForma) || booking.status !== "HELD";
+  !["DRAFT", "PRICED", "OTP_PENDING", "HELD"].includes(booking.status);
 
 const slotLocked =
   Boolean(booking.proForma) || booking.status !== "HELD";

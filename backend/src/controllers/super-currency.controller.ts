@@ -90,7 +90,14 @@ export async function saveSuperCurrencyRate(
     ).toUpperCase();
 
     const dzdPerUnit = Number(req.body.dzdPerUnit);
-    const active = Boolean(req.body.active);
+    const active = req.body.active;
+
+if (typeof active !== "boolean") {
+  return res.status(400).json({
+    success: false,
+    message: "The active value must be true or false",
+  });
+}
 
     if (
       !supportedCurrencies.includes(

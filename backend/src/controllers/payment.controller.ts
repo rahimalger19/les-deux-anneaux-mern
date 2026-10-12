@@ -66,14 +66,20 @@ if (!booking) {
   }
 }
 
+
 export async function getBookingPayment(req: Request, res: Response) {
   try {
-    const rawBookingId = req.params.bookingId;
-    const bookingId = Array.isArray(rawBookingId)
-      ? rawBookingId[0]
-      : rawBookingId;
+    const rawToken = req.params.token;
+    const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
 
-    const booking = await Booking.findById(bookingId);
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Tracking token is required",
+      });
+    }
+
+    const booking = await Booking.findOne({ guestToken: token });
 
     if (!booking) {
       return res.status(404).json({
@@ -88,7 +94,17 @@ export async function getBookingPayment(req: Request, res: Response) {
 
     return res.json({
       success: true,
-      payment,
+      payment: payment
+        ? {
+            id: payment._id.toString(),
+            bookingId: payment.bookingId.toString(),
+            method: payment.method,
+            amountDZD: payment.amountDZD,
+            status: payment.status,
+            reference: payment.reference,
+            proofUploaded: Boolean(payment.proofStorageKey),
+          }
+        : null,
     });
   } catch (error) {
     console.error("Get payment error:", error);
@@ -99,6 +115,7 @@ export async function getBookingPayment(req: Request, res: Response) {
     });
   }
 }
+
 
 export async function getPaymentInstructions(
   _req: Request,
@@ -129,6 +146,9 @@ export async function getPaymentInstructions(
     const baridiMobDetails =
       configuration?.baridiMob?.details || legacyBaridiMobDetails;
 
+    const bankTransferDetails =
+      configuration?.bankTransfer?.details || "";
+
     return res.json({
       success: true,
       instructions: {
@@ -139,6 +159,7 @@ export async function getPaymentInstructions(
           label: configuration?.ccp?.label || "CCP",
           details: ccpDetails || null,
         },
+
         BARIDIMOB: {
           enabled: configuration
             ? Boolean(configuration.baridiMob?.enabled)
@@ -146,9 +167,20 @@ export async function getPaymentInstructions(
           label: configuration?.baridiMob?.label || "BaridiMob",
           details: baridiMobDetails || null,
         },
+
+        VIREMENT: {
+          enabled: configuration
+            ? Boolean(configuration.bankTransfer?.enabled)
+            : Boolean(bankTransferDetails),
+          label:
+            configuration?.bankTransfer?.label || "Virement bancaire",
+          details: bankTransferDetails || null,
+        },
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Get payment instructions error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Unable to load payment instructions",
@@ -156,21 +188,19 @@ export async function getPaymentInstructions(
   }
 }
 
+
 export async function uploadPaymentProof(
   req: Request,
   res: Response
 ) {
   try {
-    const rawBookingId = req.params.bookingId;
+    const rawToken = req.params.token;
+    const token = Array.isArray(rawToken) ? rawToken[0] : rawToken;
 
-    const bookingId = Array.isArray(rawBookingId)
-      ? rawBookingId[0]
-      : rawBookingId;
-
-    if (!bookingId) {
+    if (!token) {
       return res.status(400).json({
         success: false,
-        message: "Booking ID is required",
+        message: "Tracking token is required",
       });
     }
 
@@ -181,7 +211,7 @@ export async function uploadPaymentProof(
       });
     }
 
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findOne({ guestToken: token });
 
     if (!booking) {
       return res.status(404).json({
@@ -241,7 +271,7 @@ export async function uploadPaymentProof(
       success: true,
       message: "Payment proof uploaded",
       payment: {
-        id: payment._id,
+        id: payment._id.toString(),
         status: payment.status,
         proofFileName: payment.proofFileName,
       },
@@ -251,9 +281,7 @@ export async function uploadPaymentProof(
 
     return res.status(400).json({
       success: false,
-      message:
-        error?.message ||
-        "Unable to upload payment proof",
+      message: error?.message || "Unable to upload payment proof",
     });
   }
 }

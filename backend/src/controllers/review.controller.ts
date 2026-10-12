@@ -29,8 +29,7 @@ export async function getPublishedReviews(_req: Request, res: Response) {
       status: "PUBLISHED",
     })
       .select(
-        "authorName rating message photoUrls verified officialReply likeCount createdAt"
-      )
+"authorName rating message photoUrls verified officialReply likeCount comments createdAt"      )
       .sort({ createdAt: -1 })
       .limit(100)
       .lean();
@@ -47,6 +46,7 @@ export async function getPublishedReviews(_req: Request, res: Response) {
         officialReply: review.officialReply || "",
         likeCount: review.likeCount || 0,
         createdAt: review.createdAt,
+        comments: review.comments || [],
       })),
     });
   } catch {
@@ -144,6 +144,72 @@ export async function likeReview(req: Request, res: Response) {
     return res.status(500).json({
       success: false,
       message: "Unable to like review",
+    });
+  }
+}
+
+export async function createReviewComment(
+  req: Request,
+  res: Response
+) {
+  try {
+    const reviewId = getParam(req.params.reviewId);
+    const message = String(req.body.message || "").trim();
+
+    if (
+      !req.user ||
+      !reviewId ||
+      !mongoose.isValidObjectId(reviewId) ||
+      message.length < 2 ||
+      message.length > 1000
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "A valid comment between 2 and 1000 characters is required",
+      });
+    }
+
+    const [review, user] = await Promise.all([
+      Review.findOne({
+        _id: reviewId,
+        status: "PUBLISHED",
+      }),
+      User.findById(req.user.id).select("name"),
+    ]);
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: "Published review not found",
+      });
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    review.comments.push({
+      authorName: user.name,
+      message,
+      createdAt: new Date(),
+    });
+
+    await review.save();
+
+    const comment = review.comments[review.comments.length - 1];
+
+    return res.status(201).json({
+      success: true,
+      message: "Comment added",
+      comment,
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: "Unable to add comment",
     });
   }
 }

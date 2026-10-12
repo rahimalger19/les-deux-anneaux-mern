@@ -19,27 +19,13 @@ export type Payment = {
   rejectionReason?: string;
 };
 
-export type PaymentInstructions = {
-  CCP: {
-    enabled: boolean;
-    label: string;
-    accountName: string;
-    rip: string;
-    reason: string;
-  };
-
-  BARIDIMOB: {
-    enabled: boolean;
-    label: string;
-    accountNumber: string;
-    qrUrl: string | null;
-  };
-
-  VIREMENT: {
-    enabled: boolean;
-    label: string;
-    bankName: string;
-    accountName: string;
-    rib: string;
-  };
+export type PaymentInstruction = {
+  enabled: boolean;
+  label: string;
+  details: string | null;
 };
+
+export type PaymentInstructions = Record<
+  PaymentMethod,
+  PaymentInstruction
+>;

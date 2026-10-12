@@ -97,12 +97,14 @@ useEffect(() => {
     );
   }
 }, [expiresAt, otpStorageKey]);
+  
   if (!bookingId || !trackingToken) {
     return (
       <main className="mx-auto max-w-xl px-6 py-16">
-        <h1 className="font-serif text-4xl">Code OTP introuvable</h1>
+        <h1 className="font-serif text-4xl">
+          Code OTP introuvable
+        </h1>
 
-      <BookingStepper currentStep={4} />
         <Link
           to="/reservation"
           className="mt-6 inline-block rounded-full bg-black px-5 py-3 text-ivory"
@@ -112,6 +114,7 @@ useEffect(() => {
       </main>
     );
   }
+
 
   async function handleVerify() {
     const currentBookingId = bookingId;
@@ -214,6 +217,7 @@ setMessage(
       <h1 className="mt-3 font-serif text-4xl">
         Saisissez votre code OTP
       </h1>
+      <BookingStepper currentStep={4} />
 
       <p className="mt-4 text-black/70">
   {secondsRemaining > 0

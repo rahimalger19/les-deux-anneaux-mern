@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createMyReview,
+  createReviewComment,
   getMyReviewableBookings,
   getMyReviews,
   getPublishedReviews,
@@ -13,6 +14,11 @@ const router = Router();
 
 router.get("/", getPublishedReviews);
 router.post("/:reviewId/like", likeReview);
+router.post(
+  "/:reviewId/comments",
+  requireAuth,
+  createReviewComment
+);
 
 router.get("/my/list", requireAuth, getMyReviews);
 router.get(

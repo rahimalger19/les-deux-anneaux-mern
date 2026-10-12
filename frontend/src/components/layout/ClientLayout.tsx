@@ -52,33 +52,35 @@ export default function ClientLayout() {
           Bonjour, {user?.name}
         </p>
 
-        <nav className="mt-10 flex flex-1 flex-col gap-2">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === "/espace"}
-              className={({ isActive }) =>
-                `rounded-xl px-4 py-3 transition ${
-                  isActive
-                    ? "bg-gold font-semibold text-black"
-                    : "hover:bg-foreground/10"
-                }`
-              }
-            >
-              <span className="mr-3">{link.icon}</span>
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        <nav className="mt-10 min-h-0 flex-1 overflow-y-auto pr-2">
+  <div className="flex flex-col gap-2">
+    {links.map((link) => (
+      <NavLink
+        key={link.to}
+        to={link.to}
+        end={link.to === "/espace"}
+        className={({ isActive }) =>
+          `rounded-xl px-4 py-3 transition ${
+            isActive
+              ? "bg-gold font-semibold text-black"
+              : "hover:bg-foreground/10"
+          }`
+        }
+      >
+        <span className="mr-3">{link.icon}</span>
+        {link.label}
+      </NavLink>
+    ))}
+  </div>
+</nav>
 
         <button
-          type="button"
-          onClick={handleLogout}
-          className="rounded-xl border border-red-700 px-4 py-3 text-left font-semibold text-red-700"
-        >
-          Logout
-        </button>
+  type="button"
+  onClick={handleLogout}
+  className="shrink-0 rounded-xl border border-red-700 px-4 py-3 text-left font-semibold text-red-700"
+>
+  Se déconnecter
+</button>
       </aside>
 
       <section className="min-h-screen pb-24 md:ml-64 md:pb-0">

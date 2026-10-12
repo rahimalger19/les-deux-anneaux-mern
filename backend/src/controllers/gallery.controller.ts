@@ -26,7 +26,10 @@ export async function getGalleryItems(req: Request, res: Response) {
     const eventType = String(req.query.eventType || "").trim();
     const album = String(req.query.album || "").trim();
 
-    const filter: Record<string, unknown> = { active: true };
+    const filter: Record<string, unknown> = {
+  active: true,
+  imageRightsConfirmed: true,
+};
 
     if (eventType) {
       filter.eventTypeKey = eventType;
@@ -68,8 +71,10 @@ export async function getGalleryAlbums(req: Request, res: Response) {
   try {
     const eventType = String(req.query.eventType || "").trim();
 
-    const match: Record<string, unknown> = { active: true };
-
+    const match: Record<string, unknown> = {
+  active: true,
+  imageRightsConfirmed: true,
+};
     if (eventType) {
       match.eventTypeKey = eventType;
     }

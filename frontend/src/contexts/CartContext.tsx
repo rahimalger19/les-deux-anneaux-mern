@@ -40,45 +40,60 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [optionKeys, setOptionKeys] = useState<string[]>([]);
   const [customLines, setCustomLines] = useState<CartCustomLine[]>([]);
   const [holdExpiresAt, setHoldExpiresAt] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  
+useEffect(() => {
+  const savedCart = localStorage.getItem(CART_STORAGE_KEY);
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+  if (!savedCart) {
+    setHydrated(true);
+    return;
+  }
 
-    if (!savedCart) {
-      return;
-    }
+  try {
+    const cart = JSON.parse(savedCart) as {
+      spaceKey?: string | null;
+      packKey?: string | null;
+      optionKeys?: string[];
+      customLines?: CartCustomLine[];
+      holdExpiresAt?: string | null;
+    };
 
-    try {
-      const cart = JSON.parse(savedCart) as {
-        spaceKey?: string | null;
-        packKey?: string | null;
-        optionKeys?: string[];
-        customLines?: CartCustomLine[];
-        holdExpiresAt?: string | null;
-      };
+    setSpaceKey(cart.spaceKey || null);
+    setPackKey(cart.packKey || null);
+    setOptionKeys(cart.optionKeys || []);
+    setCustomLines(cart.customLines || []);
+    setHoldExpiresAt(cart.holdExpiresAt || null);
+  } catch {
+    localStorage.removeItem(CART_STORAGE_KEY);
+  } finally {
+    setHydrated(true);
+  }
+}, []);
 
-      setSpaceKey(cart.spaceKey || null);
-      setPackKey(cart.packKey || null);
-      setOptionKeys(cart.optionKeys || []);
-      setCustomLines(cart.customLines || []);
-      setHoldExpiresAt(cart.holdExpiresAt || null);
-    } catch {
-      localStorage.removeItem(CART_STORAGE_KEY);
-    }
-  }, []);
+useEffect(() => {
+  if (!hydrated) {
+    return;
+  }
 
-  useEffect(() => {
-    localStorage.setItem(
-      CART_STORAGE_KEY,
-      JSON.stringify({
-        spaceKey,
-        packKey,
-        optionKeys,
-        customLines,
-        holdExpiresAt,
-      })
-    );
-  }, [spaceKey, packKey, optionKeys, customLines, holdExpiresAt]);
+  localStorage.setItem(
+    CART_STORAGE_KEY,
+    JSON.stringify({
+      spaceKey,
+      packKey,
+      optionKeys,
+      customLines,
+      holdExpiresAt,
+    })
+  );
+}, [
+  hydrated,
+  spaceKey,
+  packKey,
+  optionKeys,
+  customLines,
+  holdExpiresAt,
+]);
 
   function clearCart() {
     setSpaceKey(null);

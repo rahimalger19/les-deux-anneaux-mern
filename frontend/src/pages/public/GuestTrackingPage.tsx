@@ -8,6 +8,7 @@ import {
 
 import {
   createPayment,
+  getBookingPayment,
   getPaymentInstructions,
   uploadPaymentProof,
 } from "../../services/payment.service";
@@ -101,88 +102,88 @@ export default function GuestTrackingPage() {
   }, []);
 
   // 3. Charger le paiement existant
-  useEffect(() => {
-    if (!booking) return;
+  // 3. Charger le paiement existant
+useEffect(() => {
+  if (!token || !booking) return;
 
-    import("../../services/payment.service")
-      .then(({ getBookingPayment }) => getBookingPayment(booking.id))
-      .then((result) => {
-        setPayment(result);
-      })
-      .catch(() => {
-        // Aucun paiement n'existe encore.
-      });
-  }, [booking]);
+  getBookingPayment(token!)
+    .then((result) => {
+      setPayment(result);
+
+if (result) {
+  setSelectedMethod(result.method);
+}
+    })
+    .catch(() => {
+      // Aucun paiement n'existe encore.
+      setPayment(null);
+      setSelectedMethod(null);
+    });
+}, [token, booking?.id]);
 
   async function handleCreatePayment(method: PaymentMethod) {
-    if (!booking) return;
+  if (!token || !booking) return;
 
-    try {
-      setPaymentMessage("");
+  try {
+    setPaymentMessage("");
 
-const createdPayment = await createPayment(booking.id, method);
+    const createdPayment = await createPayment(token!, method);
 
-setPayment(createdPayment);
-setSelectedMethod(method);
-      setPaymentMessage(
-        "Méthode de paiement sélectionnée. Vous pouvez maintenant envoyer votre preuve."
-      );
+    setPayment(createdPayment);
+    setSelectedMethod(method);
 
-      setBooking((current) =>
-        current
-          ? {
-              ...current,
-              status: "PROOF_PENDING",
-            }
-          : current
-      );
-    } catch (requestError: any) {
-      setPaymentMessage(
-        requestError.response?.data?.message ||
-          "Impossible de sélectionner cette méthode de paiement."
-      );
-    }
+    setPaymentMessage(
+      "Méthode de paiement sélectionnée. Vous pouvez maintenant envoyer votre preuve."
+    );
+
+    
+  } catch (requestError: any) {
+    setPaymentMessage(
+      requestError.response?.data?.message ||
+        "Impossible de sélectionner cette méthode de paiement."
+    );
   }
+}
 
   async function handleUploadProof() {
-    if (!booking) return;
+  if (!token || !booking) return;
 
-    if (!proofFile) {
-      setProofMessage("Veuillez sélectionner votre preuve de paiement.");
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setProofMessage("");
-
-      await uploadPaymentProof(booking.id, proofFile);
-
-      setProofMessage("Votre preuve de paiement a été envoyée avec succès.");
-
-      setBooking((current) =>
-        current
-          ? {
-              ...current,
-              status: "PROOF_PENDING",
-            }
-          : current
-      );
-
-      const updatedPayment = await import(
-        "../../services/payment.service"
-      ).then(({ getBookingPayment }) => getBookingPayment(booking.id));
-
-      setPayment(updatedPayment);
-    } catch (requestError: any) {
-      setProofMessage(
-        requestError.response?.data?.message ||
-          "Impossible d'envoyer la preuve de paiement."
-      );
-    } finally {
-      setIsUploading(false);
-    }
+  if (!proofFile) {
+    setProofMessage("Veuillez sélectionner votre preuve de paiement.");
+    return;
   }
+
+  try {
+    setIsUploading(true);
+    setProofMessage("");
+
+    await uploadPaymentProof(token!, proofFile);
+
+    setProofMessage(
+      "Votre preuve de paiement a été envoyée avec succès."
+    );
+
+    const updatedPayment = await getBookingPayment(token);
+
+    setPayment(updatedPayment);
+
+    setBooking((current) =>
+      current
+        ? {
+            ...current,
+            status: "PROOF_PENDING",
+          }
+        : current
+    );
+  } catch (requestError: any) {
+    setProofMessage(
+      requestError.response?.data?.message ||
+        "Impossible d'envoyer la preuve de paiement."
+    );
+  } finally {
+    setIsUploading(false);
+  }
+}
 
   if (message || !booking) {
     return (
@@ -315,7 +316,7 @@ setSelectedMethod(method);
   </div>
 </div>
 
-        {/* Payment */}
+               {/* Payment */}
         {booking.status === "HELD" && (
           <div className="mt-8 rounded-2xl border border-foreground/15 p-6">
             <h2 className="text-2xl font-bold">
@@ -328,30 +329,45 @@ setSelectedMethod(method);
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() => handleCreatePayment("CCP")}
-                className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
-              >
-                CCP
-              </button>
+              {paymentInstructions?.CCP.enabled && (
+                <button
+                  type="button"
+                  onClick={() => handleCreatePayment("CCP")}
+                  className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
+                >
+                  {paymentInstructions.CCP.label}
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => handleCreatePayment("BARIDIMOB")}
-                className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
-              >
-                BaridiMob
-              </button>
+              {paymentInstructions?.BARIDIMOB.enabled && (
+                <button
+                  type="button"
+                  onClick={() => handleCreatePayment("BARIDIMOB")}
+                  className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
+                >
+                  {paymentInstructions.BARIDIMOB.label}
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => handleCreatePayment("VIREMENT")}
-                className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
-              >
-                Virement
-              </button>
+              {paymentInstructions?.VIREMENT.enabled && (
+                <button
+                  type="button"
+                  onClick={() => handleCreatePayment("VIREMENT")}
+                  className="rounded-xl border border-gold px-4 py-3 font-semibold hover:bg-gold hover:text-black"
+                >
+                  {paymentInstructions.VIREMENT.label}
+                </button>
+              )}
             </div>
+
+            {paymentInstructions &&
+              !paymentInstructions.CCP.enabled &&
+              !paymentInstructions.BARIDIMOB.enabled &&
+              !paymentInstructions.VIREMENT.enabled && (
+                <p className="mt-4 text-sm text-red-700">
+                  Aucun mode de paiement n'est actuellement disponible.
+                </p>
+              )}
 
             {paymentMessage && (
               <p className="mt-4 text-sm text-foreground/70">
@@ -361,7 +377,7 @@ setSelectedMethod(method);
           </div>
         )}
 
-        {/* Payment instructions */}
+               {/* Payment instructions */}
         {selectedInstructions && selectedMethod && (
           <div className="mt-6 rounded-2xl border border-gold p-6">
             <h2 className="text-2xl font-bold">
@@ -372,39 +388,13 @@ setSelectedMethod(method);
               {selectedInstructions.label}
             </p>
 
-            {"accountName" in selectedInstructions && (
-              <p className="mt-2">
-                Nom du compte : {selectedInstructions.accountName}
+            {selectedInstructions.details ? (
+              <p className="mt-4 whitespace-pre-line">
+                {selectedInstructions.details}
               </p>
-            )}
-
-            {"rip" in selectedInstructions && (
-              <p className="mt-2">
-                RIP : {selectedInstructions.rip}
-              </p>
-            )}
-
-            {"accountNumber" in selectedInstructions && (
-              <p className="mt-2">
-                Numéro : {selectedInstructions.accountNumber}
-              </p>
-            )}
-
-            {"bankName" in selectedInstructions && (
-              <p className="mt-2">
-                Banque : {selectedInstructions.bankName}
-              </p>
-            )}
-
-            {"rib" in selectedInstructions && (
-              <p className="mt-2">
-                RIB : {selectedInstructions.rib}
-              </p>
-            )}
-
-            {"reason" in selectedInstructions && (
-              <p className="mt-2">
-                Motif : {selectedInstructions.reason}
+            ) : (
+              <p className="mt-4 text-sm text-red-700">
+                Les coordonnées de paiement ne sont pas encore configurées.
               </p>
             )}
           </div>
