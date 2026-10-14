@@ -21,7 +21,7 @@ const initialForm = {
 };
 
 export default function ContactPage() {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
 
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
@@ -85,16 +85,13 @@ export default function ContactPage() {
 
       setFeedback(
         isAppointment
-          ? "Votre demande de rendez-vous a été envoyée. Notre équipe confirmera le créneau."
-          : "Votre message a été envoyé avec succès."
+          ? t("contact.appointmentSuccess")
+          : t("contact.messageSuccess")
       );
+
       setForm(initialForm);
-    } catch (error) {
-      setFeedback(
-        error instanceof Error
-          ? error.message
-          : "Impossible d’envoyer la demande."
-      );
+    } catch {
+      setFeedback(t("contact.error"));
     } finally {
       setLoading(false);
     }
@@ -105,11 +102,11 @@ export default function ContactPage() {
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-        Contact
+        {t("contact.eyebrow")}
       </p>
 
       <h1 className="mt-3 font-serif text-4xl">
-        Contact et rendez-vous
+        {t("contact.title")}
       </h1>
 
       <form
@@ -117,15 +114,22 @@ export default function ContactPage() {
         className="mt-8 grid gap-5 rounded-2xl border border-black/10 bg-white p-6"
       >
         <label className="grid gap-2">
-          <span className="text-sm font-semibold">Type de demande</span>
+          <span className="text-sm font-semibold">
+            {t("contact.requestType")}
+          </span>
+
           <select
             name="requestType"
             value={form.requestType}
             onChange={updateField}
             className="rounded-lg border border-black/15 px-4 py-3"
           >
-            <option value="APPOINTMENT">Demande de rendez-vous</option>
-            <option value="GENERAL">Message général</option>
+            <option value="APPOINTMENT">
+              {t("contact.appointmentRequest")}
+            </option>
+            <option value="GENERAL">
+              {t("contact.generalRequest")}
+            </option>
           </select>
         </label>
 
@@ -133,7 +137,7 @@ export default function ContactPage() {
           name="name"
           value={form.name}
           onChange={updateField}
-          placeholder="Nom complet"
+          placeholder={t("contact.name")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -142,7 +146,7 @@ export default function ContactPage() {
           name="phone"
           value={form.phone}
           onChange={updateField}
-          placeholder="Téléphone"
+          placeholder={t("contact.phone")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -152,7 +156,7 @@ export default function ContactPage() {
           type="email"
           value={form.email}
           onChange={updateField}
-          placeholder="Email"
+          placeholder={t("contact.email")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -161,7 +165,7 @@ export default function ContactPage() {
           name="subject"
           value={form.subject}
           onChange={updateField}
-          placeholder="Sujet"
+          placeholder={t("contact.subject")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -169,49 +173,54 @@ export default function ContactPage() {
         {isAppointment ? (
           <>
             <label className="grid gap-2">
-              <span className="text-sm font-semibold">Format souhaité</span>
+              <span className="text-sm font-semibold">
+                {t("contact.appointmentFormat")}
+              </span>
+
               <select
                 name="requestedAppointmentType"
                 value={form.requestedAppointmentType}
                 onChange={updateField}
                 className="rounded-lg border border-black/15 px-4 py-3"
               >
-                <option value="VISIT">Visite de la salle</option>
-                <option value="VIDEO">Visio diaspora</option>
+                <option value="VISIT">{t("contact.visit")}</option>
+                <option value="VIDEO">{t("contact.video")}</option>
               </select>
             </label>
 
             <label className="grid gap-2">
               <span className="text-sm font-semibold">
-                Créneau souhaité
+                {t("contact.preferredSlot")}
               </span>
+
               <select
                 name="requestedAppointmentSlot"
                 value={form.requestedAppointmentSlot}
                 onChange={updateField}
                 className="rounded-lg border border-black/15 px-4 py-3"
               >
-                <option value="DAY">Journée</option>
-                <option value="EVENING">Soir</option>
-                <option value="NIGHT">Nuit</option>
+                <option value="DAY">{t("contact.day")}</option>
+                <option value="EVENING">{t("contact.evening")}</option>
+                <option value="NIGHT">{t("contact.night")}</option>
               </select>
             </label>
           </>
         ) : (
           <label className="grid gap-2">
             <span className="text-sm font-semibold">
-              Préférence de rappel
+              {t("contact.callbackPreference")}
             </span>
+
             <select
               name="callbackSlot"
               value={form.callbackSlot}
               onChange={updateField}
               className="rounded-lg border border-black/15 px-4 py-3"
             >
-              <option value="AFTERNOON">Après-midi</option>
-              <option value="EVENING">Soir</option>
-              <option value="NIGHT">Nuit</option>
-              <option value="DAY">Journée</option>
+              <option value="AFTERNOON">{t("contact.afternoon")}</option>
+              <option value="EVENING">{t("contact.evening")}</option>
+              <option value="NIGHT">{t("contact.night")}</option>
+              <option value="DAY">{t("contact.day")}</option>
             </select>
           </label>
         )}
@@ -222,8 +231,8 @@ export default function ContactPage() {
           onChange={updateField}
           placeholder={
             isAppointment
-              ? "Précisez vos disponibilités ou votre demande."
-              : "Votre message"
+              ? t("contact.appointmentMessage")
+              : t("contact.generalMessage")
           }
           rows={6}
           required
@@ -238,10 +247,10 @@ export default function ContactPage() {
           className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
         >
           {loading
-            ? "Envoi..."
+            ? t("contact.sending")
             : isAppointment
-              ? "Demander un rendez-vous"
-              : "Envoyer le message"}
+              ? t("contact.sendAppointment")
+              : t("contact.sendMessage")}
         </button>
       </form>
     </main>

@@ -18,7 +18,9 @@ function formatDate(value: string) {
 export default function AdminContactMessagesPage() {
   const [messages, setMessages] = useState<AdminContactMessage[]>([]);
   const [agents, setAgents] = useState<ContactAgent[]>([]);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+  "" | "NEW" | "IN_PROGRESS" | "RESOLVED" | "ARCHIVED"
+>("");
   const [assignedFilter, setAssignedFilter] = useState("");
   const [requestTypeFilter, setRequestTypeFilter] = useState<
   "" | "GENERAL" | "APPOINTMENT"
@@ -26,6 +28,8 @@ export default function AdminContactMessagesPage() {
   const [draftReplies, setDraftReplies] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("Chargement des messages...");
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   async function loadMessages() {
     try {
@@ -33,10 +37,13 @@ export default function AdminContactMessagesPage() {
         status: statusFilter || undefined,
         assignedTo: assignedFilter || undefined,
         requestType: requestTypeFilter || undefined,
+        page,
+        limit: 20,
       });
 
       setMessages(data.messages);
       setAgents(data.agents);
+      setTotalPages(data.pagination.totalPages);
       setMessage(
         data.messages.length === 0
           ? "Aucun message ne correspond aux filtres."
@@ -51,8 +58,12 @@ export default function AdminContactMessagesPage() {
   }
 
   useEffect(() => {
-    void loadMessages();
-   }, [statusFilter, assignedFilter, requestTypeFilter]);
+  setPage(1);
+}, [statusFilter, assignedFilter, requestTypeFilter]);
+
+useEffect(() => {
+  void loadMessages();
+}, [statusFilter, assignedFilter, requestTypeFilter, page]);
 
   async function handleUpdate(
     contact: AdminContactMessage,
@@ -127,7 +138,16 @@ export default function AdminContactMessagesPage() {
         <section className="mt-8 flex flex-wrap gap-4 rounded-2xl border border-foreground/15 p-6">
           <select
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
+            onChange={(event) =>
+  setStatusFilter(
+    event.target.value as
+      | ""
+      | "NEW"
+      | "IN_PROGRESS"
+      | "RESOLVED"
+      | "ARCHIVED"
+  )
+}
             className="rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
           >
             <option value="">Tous les statuts</option>
@@ -318,6 +338,31 @@ export default function AdminContactMessagesPage() {
             </article>
           ))}
         </section>
+        {totalPages > 1 ? (
+  <div className="mt-8 flex items-center justify-between gap-4">
+    <button
+      type="button"
+      disabled={page === 1}
+      onClick={() => setPage((current) => current - 1)}
+      className="rounded-xl border border-foreground/20 px-5 py-3 font-semibold disabled:opacity-50"
+    >
+      Précédent
+    </button>
+
+    <p className="text-sm text-foreground/70">
+      Page {page} sur {totalPages}
+    </p>
+
+    <button
+      type="button"
+      disabled={page === totalPages}
+      onClick={() => setPage((current) => current + 1)}
+      className="rounded-xl border border-foreground/20 px-5 py-3 font-semibold disabled:opacity-50"
+    >
+      Suivant
+    </button>
+  </div>
+) : null}
       </div>
     </main>
   );

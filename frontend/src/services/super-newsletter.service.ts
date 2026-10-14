@@ -31,10 +31,11 @@ export type NewsletterCampaign = {
 };
 
 export async function getSuperNewsletter(
-  segment: NewsletterSegment
+  segment: NewsletterSegment,
+  page = 1
 ) {
   const response = await api.get("/super/newsletter", {
-    params: { segment },
+    params: { segment, page, limit: 20 },
   });
 
   return response.data as {
@@ -44,6 +45,12 @@ export async function getSuperNewsletter(
       subscriberCount: number;
       confirmedCount: number;
     };
+    pagination: {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
     subscribers: NewsletterSubscriber[];
     campaigns: NewsletterCampaign[];
   };

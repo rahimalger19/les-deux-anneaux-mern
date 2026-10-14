@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
+import { useCurrency } from "../../hooks/useCurrency";
 import {
   getGuestTracking,
   type GuestTrackingResponse,
@@ -19,13 +19,7 @@ import type {
   PaymentMethod,
 } from "../../types/payment.types";
 
-function formatDZD(amount: number) {
-  return new Intl.NumberFormat("fr-DZ", {
-    style: "currency",
-    currency: "DZD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+
 
 function formatStatus(status: string) {
   const labels: Record<string, string> = {
@@ -46,7 +40,7 @@ function formatStatus(status: string) {
 
 export default function GuestTrackingPage() {
   const { token } = useParams();
-
+  const { formatPrice } = useCurrency();
   const [booking, setBooking] =
     useState<GuestTrackingResponse["booking"] | null>(null);
 
@@ -257,14 +251,14 @@ if (result) {
                 Total estimé
               </p>
               <p className="font-semibold">
-                {formatDZD(booking.totalDZD)}
+                {formatPrice(booking.totalDZD)}
               </p>
             </div>
 
             <div>
               <p className="text-sm text-foreground/60">Acompte</p>
               <p className="font-semibold text-gold">
-                {formatDZD(booking.depositDZD)}
+                {formatPrice(booking.depositDZD)}
               </p>
             </div>
           </div>
@@ -325,7 +319,7 @@ if (result) {
 
             <p className="mt-2 text-foreground/70">
               Acompte à payer :{" "}
-              <strong>{formatDZD(booking.depositDZD)}</strong>
+              <strong>{formatPrice(booking.depositDZD)}</strong>
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -454,7 +448,7 @@ if (result) {
 
               <p>
                 Montant :{" "}
-                <strong>{formatDZD(payment.amountDZD)}</strong>
+                <strong>{formatPrice(payment.amountDZD)}</strong>
               </p>
 
               <p>

@@ -22,11 +22,17 @@ function hasBodyField(body: Record<string, unknown>, key: string) {
   return Object.prototype.hasOwnProperty.call(body, key);
 }
 
+
 export async function listContactMessages(req: Request, res: Response) {
   try {
     const status = String(req.query.status || "");
     const assignedTo = String(req.query.assignedTo || "");
     const requestType = String(req.query.requestType || "");
+
+    // Pagination
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 25));
+    const skip = (page - 1) * limit;
 
     const filter: Record<string, unknown> = {};
 
@@ -54,12 +60,13 @@ export async function listContactMessages(req: Request, res: Response) {
       filter.assignedTo = assignedTo;
     }
 
-    const [messages, agents] = await Promise.all([
+    const [messages, agents, total] = await Promise.all([
       ContactMessage.find(filter)
         .populate("assignedTo", "name email role")
         .populate("repliedBy", "name email role")
         .sort({ createdAt: -1 })
-        .limit(200)
+        .skip(skip)
+        .limit(limit)
         .lean(),
 
       User.find({
@@ -68,10 +75,13 @@ export async function listContactMessages(req: Request, res: Response) {
         .select("name email role")
         .sort({ name: 1 })
         .lean(),
+
+      ContactMessage.countDocuments(filter),
     ]);
 
     return res.json({
       success: true,
+
       messages: (messages as any[]).map((message) => ({
         id: message._id.toString(),
         name: message.name,
@@ -87,6 +97,7 @@ export async function listContactMessages(req: Request, res: Response) {
         requestedAppointmentSlot: message.requestedAppointmentSlot,
         status: message.status,
         createdAt: message.createdAt,
+
         assignedTo: message.assignedTo
           ? {
               id: message.assignedTo._id.toString(),
@@ -95,8 +106,10 @@ export async function listContactMessages(req: Request, res: Response) {
               role: message.assignedTo.role,
             }
           : null,
+
         replyText: message.replyText || "",
         repliedAt: message.repliedAt || null,
+
         repliedBy: message.repliedBy
           ? {
               id: message.repliedBy._id.toString(),
@@ -106,12 +119,20 @@ export async function listContactMessages(req: Request, res: Response) {
             }
           : null,
       })),
+
       agents: agents.map((agent) => ({
         id: agent._id.toString(),
         name: agent.name,
         email: agent.email,
         role: agent.role,
       })),
+
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
     });
   } catch (error) {
     console.error("List contact messages error:", error);
@@ -122,6 +143,7 @@ export async function listContactMessages(req: Request, res: Response) {
     });
   }
 }
+
 
 export async function updateContactMessageStatus(
   req: Request,
@@ -348,6 +370,71 @@ export async function listNewsletterSubscribers(
     return res.status(500).json({
       success: false,
       message: "Unable to load newsletter subscribers",
+    });
+  }
+}
+
+export async function exportContactMessages(
+  _req: Request,
+  res: Response
+) {
+  try {
+    const messages = await ContactMessage.find()
+      .sort({ createdAt: -1 })
+      .lean();
+
+    function csvCell(value: unknown) {
+      let text = String(value ?? "");
+
+      if (/^[=+\-@]/.test(text)) {
+        text = `'${text}`;
+      }
+
+      return `"${text.replace(/"/g, '""')}"`;
+    }
+
+    const rows = [
+      [
+        "Date",
+        "Nom",
+        "Telephone",
+        "Email",
+        "Sujet",
+        "Message",
+        "Langue",
+        "Type",
+        "Statut",
+      ],
+      ...messages.map((message) => [
+        message.createdAt
+          ? new Date(message.createdAt).toISOString()
+          : "",
+        message.name,
+        message.phone,
+        message.email,
+        message.subject,
+        message.message,
+        message.language,
+        message.requestType,
+        message.status,
+      ]),
+    ];
+
+    const csv = `\uFEFF${rows
+      .map((row) => row.map(csvCell).join(","))
+      .join("\n")}`;
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="messages-contact.csv"'
+    );
+
+    return res.send(csv);
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: "Unable to export contact messages",
     });
   }
 }

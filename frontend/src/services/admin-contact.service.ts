@@ -1,6 +1,10 @@
 import { api } from "../api/client";
 
-export type ContactRequestType = "GENERAL" | "APPOINTMENT";
+export type ContactStatus =
+  | "NEW"
+  | "IN_PROGRESS"
+  | "RESOLVED"
+  | "ARCHIVED";
 
 export type ContactAgent = {
   id: string;
@@ -8,6 +12,15 @@ export type ContactAgent = {
   email: string;
   role: "RECEPTION" | "MANAGER";
 };
+
+export type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+type ContactAssignee = ContactAgent;
 
 export type AdminContactMessage = {
   id: string;
@@ -19,27 +32,34 @@ export type AdminContactMessage = {
   language: "fr-DZ" | "ar-DZ" | "en";
   callbackSlot: string;
   source: string;
-  requestType: ContactRequestType;
-  requestedAppointmentType: "VISIT" | "VIDEO" | null;
-  requestedAppointmentSlot: "DAY" | "EVENING" | "NIGHT" | null;
-  status: "NEW" | "IN_PROGRESS" | "RESOLVED" | "ARCHIVED";
+  requestType: "GENERAL" | "APPOINTMENT";
+  requestedAppointmentType?: "VISIT" | "VIDEO";
+  requestedAppointmentSlot?: "DAY" | "EVENING" | "NIGHT";
+  status: ContactStatus;
   createdAt: string;
-  assignedTo: ContactAgent | null;
+  assignedTo: ContactAssignee | null;
   replyText: string;
   repliedAt: string | null;
-  repliedBy: ContactAgent | null;
+  repliedBy: ContactAssignee | null;
 };
 
-export async function getAdminContactMessages(params: {
-  status?: string;
+type ContactListResponse = {
+  success: boolean;
+  messages: AdminContactMessage[];
+  agents: ContactAgent[];
+  pagination: Pagination;
+};
+export async function getAdminContactMessages(params?: {
+  status?: ContactStatus;
   assignedTo?: string;
-  requestType?: ContactRequestType;
+  requestType?: "GENERAL" | "APPOINTMENT";
+  page?: number;
+  limit?: number;
 }) {
-  const response = await api.get<{
-    success: boolean;
-    messages: AdminContactMessage[];
-    agents: ContactAgent[];
-  }>("/admin/communication/messages", { params });
+  const response = await api.get<ContactListResponse>(
+    "/admin/communication/messages",
+    { params }
+  );
 
   return response.data;
 }
@@ -47,7 +67,7 @@ export async function getAdminContactMessages(params: {
 export async function updateAdminContactMessage(
   messageId: string,
   data: {
-    status?: "NEW" | "IN_PROGRESS" | "RESOLVED" | "ARCHIVED";
+    status?: ContactStatus;
     assignedTo?: string;
   }
 ) {

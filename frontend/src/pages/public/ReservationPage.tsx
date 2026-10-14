@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import BookingStepper from "../../components/booking/BookingStepper";
 import { useCart } from "../../contexts/CartContext";
 import { useLanguage } from "../../hooks/useLanguage";
+import { useCurrency } from "../../hooks/useCurrency";
 import {
   checkAvailability,
   createGuestDraft,
@@ -43,13 +44,12 @@ const emptyDraft: ReservationDraft = {
 
 const slots: Array<{
   value: BookingSlot;
-  title: string;
   description: string;
 }> = [
-  { value: "AFTERNOON", title: "Après-midi", description: "12:00 – 18:00" },
-  { value: "EVENING", title: "Soir", description: "18:00 – 00:00" },
-  { value: "NIGHT", title: "Nuit", description: "00:00 – 06:00" },
-  { value: "DAY", title: "Journée", description: "09:00 – 23:00" },
+  { value: "AFTERNOON", description: "12:00 – 18:00" },
+  { value: "EVENING", description: "18:00 – 00:00" },
+  { value: "NIGHT", description: "00:00 – 06:00" },
+  { value: "DAY", description: "09:00 – 23:00" },
 ];
 
 function loadDraft(): ReservationDraft {
@@ -69,18 +69,12 @@ function loadDraft(): ReservationDraft {
   }
 }
 
-function formatDZD(amount: number) {
-  return new Intl.NumberFormat("fr-DZ", {
-    style: "currency",
-    currency: "DZD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 export default function ReservationPage() {
   const { step } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const { formatPrice } = useCurrency();
+
   const {
     optionKeys,
     packKey: cartPackKey,
@@ -101,6 +95,13 @@ export default function ReservationPage() {
   const locale =
     language === "fr-DZ" ? "fr" : language === "ar-DZ" ? "ar" : "en";
 
+  const slotLabels: Record<BookingSlot, string> = {
+    AFTERNOON: t("pricing.slot.AFTERNOON"),
+    EVENING: t("pricing.slot.EVENING"),
+    NIGHT: t("pricing.slot.NIGHT"),
+    DAY: t("pricing.slot.DAY"),
+  };
+
   const selectedEventType = eventTypes.find(
     (eventType) => eventType.key === draft.eventTypeKey
   );
@@ -118,10 +119,10 @@ export default function ReservationPage() {
         setPacks(packsData);
       })
       .catch(() => {
-        setMessage("Impossible de charger le catalogue.");
+        setMessage(t("reservation.catalogError"));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!draft.packKey && cartPackKey) {
@@ -144,7 +145,7 @@ export default function ReservationPage() {
 
   async function handleAvailability() {
     if (!draft.eventDate || !draft.eventTypeKey) {
-      setMessage("Choisissez une date et un type d’événement.");
+      setMessage(t("reservation.dateEventRequired"));
       return;
     }
 
@@ -157,16 +158,13 @@ export default function ReservationPage() {
       updateDraft({ available: result.available });
 
       if (!result.available) {
-        setMessage("Ce créneau est déjà réservé.");
+        setMessage(t("reservation.unavailable"));
         return;
       }
 
       navigate("/reservation/details");
-    } catch (error: any) {
-      setMessage(
-        error.response?.data?.message ||
-          "Impossible de vérifier la disponibilité."
-      );
+    } catch {
+      setMessage(t("reservation.availabilityError"));
     } finally {
       setChecking(false);
     }
@@ -174,7 +172,7 @@ export default function ReservationPage() {
 
   function continueToQuote() {
     if (!draft.packKey || draft.womenGuests + draft.menGuests < 1) {
-      setMessage("Choisissez un pack et indiquez au moins un invité.");
+      setMessage(t("reservation.packGuestsRequired"));
       return;
     }
 
@@ -199,11 +197,8 @@ export default function ReservationPage() {
       });
 
       setEstimate(result.estimate);
-    } catch (error: any) {
-      setMessage(
-        error.response?.data?.message ||
-          "Impossible de calculer votre devis."
-      );
+    } catch {
+      setMessage(t("reservation.quoteError"));
     } finally {
       setCalculating(false);
     }
@@ -211,12 +206,12 @@ export default function ReservationPage() {
 
   async function handleSendOtp() {
     if (!estimate) {
-      setMessage("Calculez votre devis avant de continuer.");
+      setMessage(t("reservation.calculateFirst"));
       return;
     }
 
     if (draft.phone.trim().length < 8) {
-      setMessage("Saisissez un numéro de téléphone valide.");
+      setMessage(t("reservation.phoneInvalid"));
       return;
     }
 
@@ -247,11 +242,8 @@ export default function ReservationPage() {
           },
         }
       );
-    } catch (error: any) {
-      setMessage(
-        error.response?.data?.message ||
-          "Impossible d’envoyer le code OTP."
-      );
+    } catch {
+      setMessage(t("reservation.otpError"));
     } finally {
       setSendingOtp(false);
     }
@@ -276,7 +268,7 @@ export default function ReservationPage() {
   }
 
   if (loading) {
-    return <p className="p-10">Chargement de la réservation…</p>;
+    return <p className="p-10">{t("reservation.loading")}</p>;
   }
 
   const currentStep = step === "creneau" ? 1 : step === "details" ? 2 : 3;
@@ -285,11 +277,11 @@ export default function ReservationPage() {
     <main className="min-h-[70vh] bg-background px-6 py-16 text-foreground">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">
-          Réservation en ligne
+          {t("reservation.eyebrow")}
         </p>
 
         <h1 className="mt-3 font-serif text-4xl">
-          Préparer votre réservation
+          {t("reservation.title")}
         </h1>
 
         <BookingStepper currentStep={currentStep} />
@@ -302,11 +294,15 @@ export default function ReservationPage() {
 
         {step === "creneau" && (
           <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">Choisissez votre créneau</h2>
+            <h2 className="font-serif text-3xl">
+              {t("reservation.chooseSlot")}
+            </h2>
 
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               <label>
-                <span className="text-sm font-semibold">Date</span>
+                <span className="text-sm font-semibold">
+                  {t("pricing.date")}
+                </span>
                 <input
                   type="date"
                   min={new Date().toISOString().split("T")[0]}
@@ -323,7 +319,7 @@ export default function ReservationPage() {
 
               <label>
                 <span className="text-sm font-semibold">
-                  Type d’événement
+                  {t("pricing.eventType")}
                 </span>
                 <select
                   value={draft.eventTypeKey}
@@ -344,7 +340,7 @@ export default function ReservationPage() {
                   }}
                   className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
                 >
-                  <option value="">Choisir un événement</option>
+                  <option value="">{t("pricing.selectEvent")}</option>
                   {eventTypes.map((eventType) => (
                     <option key={eventType.key} value={eventType.key}>
                       {eventType.name[locale]}
@@ -354,7 +350,9 @@ export default function ReservationPage() {
               </label>
             </div>
 
-            <p className="mt-8 text-sm font-semibold">Créneau souhaité</p>
+            <p className="mt-8 text-sm font-semibold">
+              {t("reservation.desiredSlot")}
+            </p>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {slots.map((item) => {
@@ -379,7 +377,9 @@ export default function ReservationPage() {
                         : "border-foreground/20"
                     } ${!allowed ? "cursor-not-allowed opacity-40" : ""}`}
                   >
-                    <strong className="block">{item.title}</strong>
+                    <strong className="block">
+                      {slotLabels[item.value]}
+                    </strong>
                     <span className="mt-1 block text-sm opacity-75">
                       {item.description}
                     </span>
@@ -394,22 +394,28 @@ export default function ReservationPage() {
               disabled={checking}
               className="mt-8 rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
             >
-              {checking ? "Vérification…" : "Vérifier la disponibilité"}
+              {checking
+                ? t("reservation.checking")
+                : t("reservation.checkAvailability")}
             </button>
           </section>
         )}
 
         {step === "details" && (
           <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">Configurez votre événement</h2>
+            <h2 className="font-serif text-3xl">
+              {t("reservation.configure")}
+            </h2>
 
             <p className="mt-3 text-foreground/70">
               {selectedEventType?.name[locale]} · {draft.eventDate} ·{" "}
-              {draft.slot}
+              {slotLabels[draft.slot]}
             </p>
 
             <div className="mt-8">
-              <p className="text-sm font-semibold">Grille tarifaire</p>
+              <p className="text-sm font-semibold">
+                {t("reservation.pricingGrid")}
+              </p>
 
               <div className="mt-3 flex flex-wrap gap-3">
                 <button
@@ -423,7 +429,7 @@ export default function ReservationPage() {
                       : "rounded-full border border-foreground/20 px-5 py-3"
                   }
                 >
-                  Résidence DZ
+                  {t("pricing.resident")}
                 </button>
 
                 <button
@@ -437,14 +443,16 @@ export default function ReservationPage() {
                       : "rounded-full border border-foreground/20 px-5 py-3"
                   }
                 >
-                  Diaspora / immigrants
+                  {t("pricing.diaspora")}
                 </button>
               </div>
             </div>
 
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <label>
-                <span className="text-sm font-semibold">Invitées femmes</span>
+                <span className="text-sm font-semibold">
+                  {t("pricing.womenGuests")}
+                </span>
                 <input
                   type="number"
                   min="0"
@@ -459,7 +467,9 @@ export default function ReservationPage() {
               </label>
 
               <label>
-                <span className="text-sm font-semibold">Invités hommes</span>
+                <span className="text-sm font-semibold">
+                  {t("pricing.menGuests")}
+                </span>
                 <input
                   type="number"
                   min="0"
@@ -474,7 +484,9 @@ export default function ReservationPage() {
               </label>
             </div>
 
-            <h3 className="mt-10 font-serif text-2xl">Choisissez votre pack</h3>
+            <h3 className="mt-10 font-serif text-2xl">
+              {t("reservation.choosePack")}
+            </h3>
 
             <div className="mt-5 grid gap-5 md:grid-cols-3">
               {packs.map((pack) => {
@@ -509,7 +521,7 @@ export default function ReservationPage() {
 
                     {price !== undefined && (
                       <span className="mt-4 block font-bold">
-                        {formatDZD(price)}
+                        {formatPrice(price)}
                       </span>
                     )}
                   </button>
@@ -519,18 +531,20 @@ export default function ReservationPage() {
 
             <div className="mt-7 rounded-xl bg-foreground/5 p-4 text-sm">
               {optionKeys.length > 0 ? (
-                <p>{optionKeys.length} option(s) sélectionnée(s).</p>
+                <p>
+                  {optionKeys.length} {t("reservation.selectedOptions")}
+                </p>
               ) : (
-                <p>Aucune option supplémentaire sélectionnée.</p>
+                <p>{t("reservation.noOptions")}</p>
               )}
 
               <Link
-  to="/services"
-  state={{ returnTo: "/reservation/details" }}
-  className="mt-2 inline-block font-semibold text-gold underline underline-offset-4"
->
-  Gérer les options
-</Link>
+                to="/services"
+                state={{ returnTo: "/reservation/details" }}
+                className="mt-2 inline-block font-semibold text-gold underline underline-offset-4"
+              >
+                {t("reservation.manageOptions")}
+              </Link>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -539,7 +553,7 @@ export default function ReservationPage() {
                 onClick={() => navigate("/reservation/creneau")}
                 className="rounded-full border border-foreground/20 px-6 py-3 font-semibold"
               >
-                Retour
+                {t("reservation.back")}
               </button>
 
               <button
@@ -547,7 +561,7 @@ export default function ReservationPage() {
                 onClick={continueToQuote}
                 className="rounded-full bg-gold px-6 py-3 font-semibold text-black"
               >
-                Continuer vers le devis
+                {t("reservation.continueQuote")}
               </button>
             </div>
           </section>
@@ -555,30 +569,36 @@ export default function ReservationPage() {
 
         {step === "devis" && (
           <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">Votre devis</h2>
+            <h2 className="font-serif text-3xl">
+              {t("reservation.quote")}
+            </h2>
 
             <div className="mt-6 grid gap-4 rounded-xl bg-foreground/5 p-5 sm:grid-cols-2">
               <p>
-                <span className="block text-sm text-foreground/60">Date</span>
+                <span className="block text-sm text-foreground/60">
+                  {t("pricing.date")}
+                </span>
                 <strong>{draft.eventDate}</strong>
               </p>
 
               <p>
                 <span className="block text-sm text-foreground/60">
-                  Créneau
+                  {t("pricing.slot")}
                 </span>
-                <strong>{draft.slot}</strong>
+                <strong>{slotLabels[draft.slot]}</strong>
               </p>
 
               <p>
                 <span className="block text-sm text-foreground/60">
-                  Événement
+                  {t("reservation.event")}
                 </span>
                 <strong>{selectedEventType?.name[locale]}</strong>
               </p>
 
               <p>
-                <span className="block text-sm text-foreground/60">Pack</span>
+                <span className="block text-sm text-foreground/60">
+                  {t("reservation.pack")}
+                </span>
                 <strong>{selectedPack?.name[locale]}</strong>
               </p>
             </div>
@@ -590,26 +610,31 @@ export default function ReservationPage() {
                 disabled={calculating}
                 className="mt-7 rounded-full bg-gold px-6 py-3 font-semibold text-black"
               >
-                {calculating ? "Calcul…" : "Calculer mon devis"}
+                {calculating
+                  ? t("pricing.calculating")
+                  : t("reservation.calculateQuote")}
               </button>
             ) : (
               <div className="mt-7 rounded-2xl border border-gold bg-gold/10 p-6">
-                <p className="text-sm text-foreground/60">Total estimé</p>
+                <p className="text-sm text-foreground/60">
+                  {t("pricing.estimateTotal")}
+                </p>
                 <p className="mt-1 text-3xl font-bold">
-                  {formatDZD(estimate.pricing.totalDZD)}
+                  {formatPrice(estimate.pricing.totalDZD)}
                 </p>
 
                 <p className="mt-5 text-sm text-foreground/60">
-                  Acompte ({estimate.eventType.depositPercent}%)
+                  {t("pricing.deposit")} (
+                  {estimate.eventType.depositPercent}%)
                 </p>
 
                 <p className="mt-1 text-2xl font-bold text-gold">
-                  {formatDZD(estimate.pricing.depositDZD)}
+                  {formatPrice(estimate.pricing.depositDZD)}
                 </p>
 
                 <label className="mt-7 block">
                   <span className="text-sm font-semibold">
-                    Numéro de téléphone
+                    {t("reservation.phone")}
                   </span>
 
                   <input
@@ -617,13 +642,12 @@ export default function ReservationPage() {
                     placeholder="0555000000"
                     value={draft.phone}
                     onChange={(event) => {
-  setDraft((current) => ({
-    ...current,
-    phone: event.target.value,
-  }));
-
-  setMessage("");
-}}
+                      setDraft((current) => ({
+                        ...current,
+                        phone: event.target.value,
+                      }));
+                      setMessage("");
+                    }}
                     className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
                   />
                 </label>
@@ -635,8 +659,8 @@ export default function ReservationPage() {
                   className="mt-5 rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
                 >
                   {sendingOtp
-                    ? "Envoi…"
-                    : "Recevoir le code OTP et confirmer"}
+                    ? t("reservation.sending")
+                    : t("reservation.sendOtp")}
                 </button>
               </div>
             )}
@@ -646,7 +670,7 @@ export default function ReservationPage() {
               onClick={() => navigate("/reservation/details")}
               className="mt-7 rounded-full border border-foreground/20 px-6 py-3 font-semibold"
             >
-              Retour
+              {t("reservation.back")}
             </button>
           </section>
         )}

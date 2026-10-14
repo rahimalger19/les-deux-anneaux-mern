@@ -2,22 +2,18 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
 import { useLanguage } from "../../hooks/useLanguage";
+import { useCurrency } from "../../hooks/useCurrency";
 import {
   getPublicServices,
   type PublicService,
 } from "../../services/public-content.service";
 
-function formatDZD(amount: number) {
-  return new Intl.NumberFormat("fr-DZ", {
-    style: "currency",
-    currency: "DZD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+
 
 export default function ServicesPage() {
   const { language } = useLanguage();
   const location = useLocation();
+  const { formatPrice } = useCurrency();
 
 const navigationState = location.state as { returnTo?: string } | null;
 
@@ -118,7 +114,7 @@ const canSelect =
 
                 <p className="mt-5 font-semibold">
   {service.priceDZD !== undefined
-    ? formatDZD(service.priceDZD)
+    ? formatPrice(service.priceDZD)
     : "Tarif communiqué lors de la réservation"}
 </p>
 

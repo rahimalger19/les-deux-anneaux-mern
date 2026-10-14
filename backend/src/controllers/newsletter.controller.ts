@@ -3,18 +3,32 @@ import type { Request, Response } from "express";
 import { NewsletterSubscriber } from "../models/NewsletterSubscriber";
 import { sendNewsletterConfirmationEmail } from "../services/mail.service";
 
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+const validLanguages = ["fr-DZ", "ar-DZ", "en"] as const;
+
 export async function subscribeNewsletter(req: Request, res: Response) {
   try {
-    const { email, phone, language } = req.body;
+    const email = String(req.body.email || "").trim().toLowerCase();
+const phone = String(req.body.phone || "").trim();
+const language = String(req.body.language || "");
 
-    if (!email || !phone || !language) {
+if (
+  !isValidEmail(email) ||
+  !phone ||
+  !validLanguages.includes(
+    language as (typeof validLanguages)[number]
+  )
+) {
       return res.status(400).json({
         success: false,
         message: "Email, phone and language are required",
       });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedEmail = email;
     const confirmationToken = crypto.randomBytes(32).toString("hex");
     const unsubscribeToken = crypto.randomBytes(32).toString("hex");
 
@@ -38,7 +52,7 @@ export async function subscribeNewsletter(req: Request, res: Response) {
       }
     );
 
-    const emailLanguage =
+    const emailLanguage: "fr" | "ar" | "en" =
   language === "ar-DZ"
     ? "ar"
     : language === "en"

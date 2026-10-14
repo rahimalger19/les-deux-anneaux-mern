@@ -1,28 +1,28 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useLanguage } from "../../hooks/useLanguage";
 
 const links = [
-  { to: "/espace", label: "Accueil", icon: "⌂" },
-  { to: "/espace/nouvelle-reservation", label: "Réserver", icon: "+" },
-  { to: "/espace/reservations", label: "Réservations", icon: "▣" },
-  { to: "/espace/rendez-vous", label: "Rendez-vous", icon: "◷" },
-  { to: "/espace/paiements", label: "Paiements", icon: "◈" },
-  { to: "/espace/preuves", label: "Preuves", icon: "↑" },
-  { to: "/espace/documents", label: "Documents", icon: "▤" },
-  { to: "/espace/factures", label: "Factures", icon: "◫" },
-  { to: "/espace/devis", label: "Devis", icon: "◧" },
-  { to: "/espace/messages", label: "Messages", icon: "✉" },
-  { to: "/espace/notifications", label: "Notifications", icon: "●" },
-  { to: "/espace/galerie-favoris", label: "Favoris", icon: "♥" },
-  { to: "/espace/avis", label: "Mes avis", icon: "★" },
-  { to: "/espace/invites", label: "Invités", icon: "☷" },
-  { to: "/espace/profil", label: "Profil", icon: "◉" },
-  { to: "/espace/preferences", label: "Préférences", icon: "⚙" },
-  { to: "/espace/securite", label: "Sécurité", icon: "◉" },
-  { to: "/espace/aide", label: "Aide", icon: "?" },
-  { to: "/espace/payeur", label: "Payeur", icon: "◉" },
-  
-];
+  { to: "/espace", key: "client.home", icon: "⌂" },
+  { to: "/espace/nouvelle-reservation", key: "client.book", icon: "+" },
+  { to: "/espace/reservations", key: "client.bookings", icon: "▣" },
+  { to: "/espace/rendez-vous", key: "client.appointments", icon: "◷" },
+  { to: "/espace/paiements", key: "client.payments", icon: "◈" },
+  { to: "/espace/preuves", key: "client.proofs", icon: "↑" },
+  { to: "/espace/documents", key: "client.documents", icon: "▤" },
+  { to: "/espace/factures", key: "client.invoices", icon: "◫" },
+  { to: "/espace/devis", key: "client.quotes", icon: "◧" },
+  { to: "/espace/messages", key: "client.messages", icon: "✉" },
+  { to: "/espace/notifications", key: "client.notifications", icon: "●" },
+  { to: "/espace/galerie-favoris", key: "client.favorites", icon: "♥" },
+  { to: "/espace/avis", key: "client.reviews", icon: "★" },
+  { to: "/espace/invites", key: "client.guests", icon: "☷" },
+  { to: "/espace/profil", key: "client.profile", icon: "◉" },
+  { to: "/espace/preferences", key: "client.preferences", icon: "⚙" },
+  { to: "/espace/securite", key: "client.security", icon: "◉" },
+  { to: "/espace/aide", key: "client.help", icon: "?" },
+  { to: "/espace/payeur", key: "client.payer", icon: "◉" },
+] as const;
 
 const mobileLinks = links.filter((link) =>
   [
@@ -37,20 +37,21 @@ const mobileLinks = links.filter((link) =>
 export default function ClientLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
-  async function handleLogout() {
-    await logout();
-    navigate("/connexion");
-  }
+  function handleLogout() {
+  navigate("/", { replace: true });
+  void logout();
+}
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-foreground/15 bg-ivory p-6 dark:bg-black md:flex md:flex-col">
-        <p className="text-xl font-bold text-gold">Les Deux Anneaux</p>
+     <p className="text-xl font-bold text-gold">{t("brand.name")}</p>
 
         <p className="mt-2 text-sm text-foreground/60">
-          Bonjour, {user?.name}
-        </p>
+         {t("client.greeting")}, {user?.name}
+                 </p>
 
         <nav className="mt-10 min-h-0 flex-1 overflow-y-auto pr-2">
   <div className="flex flex-col gap-2">
@@ -68,8 +69,8 @@ export default function ClientLayout() {
         }
       >
         <span className="mr-3">{link.icon}</span>
-        {link.label}
-      </NavLink>
+       {t(link.key)}
+             </NavLink>
     ))}
   </div>
 </nav>
@@ -79,7 +80,7 @@ export default function ClientLayout() {
   onClick={handleLogout}
   className="shrink-0 rounded-xl border border-red-700 px-4 py-3 text-left font-semibold text-red-700"
 >
-  Se déconnecter
+  {t("common.logout")}
 </button>
       </aside>
 
@@ -100,7 +101,7 @@ export default function ClientLayout() {
             }
           >
             <span className="text-lg">{link.icon}</span>
-            <span>{link.label}</span>
+            <span>{t(link.key)}</span>
           </NavLink>
         ))}
       </nav>

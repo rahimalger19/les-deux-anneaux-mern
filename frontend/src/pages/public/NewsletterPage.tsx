@@ -3,10 +3,12 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "../../hooks/useLanguage";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = (
+  import.meta.env.VITE_API_URL || "/api"
+).replace(/\/$/, "");
 
 export default function NewsletterPage() {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const [searchParams] = useSearchParams();
 
   const [email, setEmail] = useState("");
@@ -16,27 +18,32 @@ export default function NewsletterPage() {
 
   useEffect(() => {
     const token = searchParams.get("token");
-const unsubscribeToken = searchParams.get("unsubscribe");
+    const unsubscribeToken = searchParams.get("unsubscribe");
+
     if (!token && !unsubscribeToken) {
-  return;
-}
+      return;
+    }
 
     async function confirmSubscription() {
       try {
         setLoading(true);
 
         const response = await fetch(
-  `${API_URL}/newsletter/${unsubscribeToken ? "unsubscribe" : "confirm"}`,
-  {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          `${API_URL}/newsletter/${
+            unsubscribeToken ? "unsubscribe" : "confirm"
+          }`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify(
-  unsubscribeToken
-    ? { token: unsubscribeToken }
-    : { token }
-),        });
+              unsubscribeToken
+                ? { token: unsubscribeToken }
+                : { token }
+            ),
+          }
+        );
 
         const data = await response.json();
 
@@ -44,20 +51,20 @@ const unsubscribeToken = searchParams.get("unsubscribe");
           throw new Error(data.message || "Unable to confirm subscription");
         }
 
-        setFeedback(data.message);
-      } catch (error) {
         setFeedback(
-          error instanceof Error
-            ? error.message
-            : "Unable to confirm subscription"
+          unsubscribeToken
+            ? t("newsletter.unsubscribeSuccess")
+            : t("newsletter.confirmSuccess")
         );
+      } catch {
+        setFeedback(t("newsletter.error"));
       } finally {
         setLoading(false);
       }
     }
 
     void confirmSubscription();
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -84,13 +91,11 @@ const unsubscribeToken = searchParams.get("unsubscribe");
         throw new Error(data.message || "Unable to subscribe");
       }
 
-      setFeedback(data.message);
+      setFeedback(t("newsletter.subscribeSuccess"));
       setEmail("");
       setPhone("");
-    } catch (error) {
-      setFeedback(
-        error instanceof Error ? error.message : "Unable to subscribe"
-      );
+    } catch {
+      setFeedback(t("newsletter.error"));
     } finally {
       setLoading(false);
     }
@@ -107,15 +112,15 @@ const unsubscribeToken = searchParams.get("unsubscribe");
   return (
     <main className="mx-auto max-w-xl px-6 py-16">
       <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-        Newsletter
+        {t("newsletter.eyebrow")}
       </p>
 
       <h1 className="mt-3 font-serif text-4xl">
-        Recevez nos actualités
+        {t("newsletter.title")}
       </h1>
 
       <p className="mt-4 text-black/70">
-        Confirmez votre email pour finaliser votre inscription.
+        {t("newsletter.description")}
       </p>
 
       <form
@@ -126,7 +131,7 @@ const unsubscribeToken = searchParams.get("unsubscribe");
           type="email"
           value={email}
           onChange={updateEmail}
-          placeholder="Email"
+          placeholder={t("contact.email")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -134,7 +139,7 @@ const unsubscribeToken = searchParams.get("unsubscribe");
         <input
           value={phone}
           onChange={updatePhone}
-          placeholder="Téléphone"
+          placeholder={t("newsletter.phone")}
           required
           className="rounded-lg border border-black/15 px-4 py-3"
         />
@@ -146,7 +151,9 @@ const unsubscribeToken = searchParams.get("unsubscribe");
           disabled={loading}
           className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
         >
-          {loading ? "Traitement..." : "M’inscrire"}
+          {loading
+            ? t("newsletter.processing")
+            : t("newsletter.subscribe")}
         </button>
       </form>
     </main>

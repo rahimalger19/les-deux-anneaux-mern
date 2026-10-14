@@ -8,6 +8,7 @@ import {
   verifyPhoneLoginOtp,
   verifyTwoFactorLogin,
 } from "../../services/auth.service";
+import { getDashboardRoute } from "../../lib/dashboard-route";
 
 function getOtpTtlSeconds(value: unknown) {
   const seconds = Number(value);
@@ -83,8 +84,11 @@ export default function LoginPage() {
         return;
       }
 
-      await refreshUser();
-      navigate("/espace");
+      const authenticatedUser = await refreshUser();
+
+navigate(getDashboardRoute(authenticatedUser?.role), {
+  replace: true,
+});
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Connexion impossible.");
     } finally {
@@ -105,9 +109,12 @@ export default function LoginPage() {
       setMessage("");
 
       await verifyTwoFactorLogin(email, otpCode);
-      await refreshUser();
 
-      navigate("/espace");
+const authenticatedUser = await refreshUser();
+
+navigate(getDashboardRoute(authenticatedUser?.role), {
+  replace: true,
+});
     } catch (error: any) {
       setMessage(
         error.response?.data?.message || "Impossible de vérifier le code."
@@ -171,9 +178,12 @@ export default function LoginPage() {
       setMessage("");
 
       await verifyPhoneLoginOtp(phone.trim(), otpCode);
-      await refreshUser();
 
-      navigate("/espace");
+const authenticatedUser = await refreshUser();
+
+navigate(getDashboardRoute(authenticatedUser?.role), {
+  replace: true,
+});
     } catch (error: any) {
       setMessage(
         error.response?.data?.message || "Impossible de vérifier le code."

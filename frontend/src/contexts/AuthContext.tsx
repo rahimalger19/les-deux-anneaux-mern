@@ -8,7 +8,7 @@ import {
 type AuthContextType = {
   user: AuthUser | null;
   loading: boolean;
-  refreshUser: () => Promise<void>;
+  refreshUser: () => Promise<AuthUser | null>;
   logout: () => Promise<void>;
 };
 
@@ -18,21 +18,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function refreshUser() {
-    try {
-      const result = await getCurrentUser();
-      setUser(result.user);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+  async function refreshUser(): Promise<AuthUser | null> {
+  try {
+    const result = await getCurrentUser();
 
-  async function logout() {
+    setUser(result.user);
+
+    return result.user;
+  } catch {
+    setUser(null);
+
+    return null;
+  } finally {
+    setLoading(false);
+  }
+}
+
+ async function logout() {
+  try {
     await logoutUser();
+  } finally {
     setUser(null);
   }
+}
 
   useEffect(() => {
     refreshUser();

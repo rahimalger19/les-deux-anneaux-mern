@@ -48,6 +48,8 @@ export default function SuperNewsletterPage() {
 
   const [confirmedCount, setConfirmedCount] = useState(0);
   const [subscriberCount, setSubscriberCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [subject, setSubject] = useState("");
   const [html, setHtml] = useState("");
@@ -58,20 +60,25 @@ export default function SuperNewsletterPage() {
 
   async function loadData() {
     try {
-      const data = await getSuperNewsletter(segment);
+      const data = await getSuperNewsletter(segment, page);
 
       setSubscribers(data.subscribers);
       setCampaigns(data.campaigns);
       setConfirmedCount(data.summary.confirmedCount);
       setSubscriberCount(data.summary.subscriberCount);
+      setTotalPages(data.pagination.totalPages);
     } catch {
       setMessage("Impossible de charger la newsletter.");
     }
   }
 
   useEffect(() => {
-    void loadData();
-  }, [segment]);
+  setPage(1);
+}, [segment]);
+
+useEffect(() => {
+  void loadData();
+}, [segment, page]);
 
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
@@ -258,6 +265,31 @@ export default function SuperNewsletterPage() {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 ? (
+  <div className="mt-6 flex items-center justify-between gap-4">
+    <button
+      type="button"
+      disabled={page === 1}
+      onClick={() => setPage((current) => current - 1)}
+      className="rounded-xl border border-foreground/20 px-5 py-3 font-semibold disabled:opacity-50"
+    >
+      Précédent
+    </button>
+
+    <p className="text-sm text-foreground/70">
+      Page {page} sur {totalPages}
+    </p>
+
+    <button
+      type="button"
+      disabled={page === totalPages}
+      onClick={() => setPage((current) => current + 1)}
+      className="rounded-xl border border-foreground/20 px-5 py-3 font-semibold disabled:opacity-50"
+    >
+      Suivant
+    </button>
+  </div>
+) : null}
         </section>
 
         <section className="mt-12">

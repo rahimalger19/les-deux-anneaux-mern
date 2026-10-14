@@ -13,7 +13,7 @@ import {
 import type { EventType } from "../../types/catalog.types";
 
 export default function HomePage() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
@@ -54,21 +54,20 @@ export default function HomePage() {
           <div>
             <img
               src="/images/logo-white-mode.jpg"
-              alt="Les Deux Anneaux"
+              alt={t("brand.name")}
               className="h-24 w-auto"
             />
 
             <p className="mt-8 text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-              Salle dînatoire
+              {t("home.venue")}
             </p>
 
             <h1 className="mt-4 font-serif text-5xl leading-tight md:text-6xl">
-              Vos événements méritent un lieu inoubliable.
+              {t("home.mainTitle")}
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-8 text-ivory/75">
-              Mariages, fiançailles, réceptions familiales et événements
-              professionnels, avec réservation en ligne jour et nuit.
+              {t("home.mainDescription")}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -76,36 +75,36 @@ export default function HomePage() {
                 to="/reservation"
                 className="rounded-full bg-gold px-6 py-3 font-semibold text-black"
               >
-                Réserver
+                {t("nav.book")}
               </Link>
 
               <Link
                 to="/contact"
                 className="rounded-full border border-ivory/40 px-6 py-3 font-semibold text-ivory"
               >
-                Demander un RDV
+                {t("home.requestAppointment")}
               </Link>
             </div>
           </div>
 
           <div className="rounded-3xl border border-gold/30 bg-ivory/5 p-8">
             <p className="text-sm uppercase tracking-[0.2em] text-gold">
-              Réservation 24h/24
+              {t("home.availability")}
             </p>
 
             <p className="mt-4 font-serif text-3xl">
-              Après-midi, soir, nuit et journée.
+              {t("home.slots")}
             </p>
 
             <p className="mt-4 text-ivory/70">
-              La réservation de nuit est disponible directement depuis le site.
+              {t("home.slotsDescription")}
             </p>
 
             <Link
               to="/packs-tarifs"
               className="mt-7 inline-block text-gold underline underline-offset-4"
             >
-              Consulter les packs et tarifs
+              {t("home.viewPricing")}
             </Link>
           </div>
         </div>
@@ -113,11 +112,11 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-7xl px-6 py-16">
         <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-          Événements
+          {t("home.events")}
         </p>
 
         <h2 className="mt-3 font-serif text-4xl">
-          Célébrez chaque moment important
+          {t("home.eventsTitle")}
         </h2>
 
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -144,22 +143,25 @@ export default function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-                Galerie
+                {t("home.gallery")}
               </p>
 
               <h2 className="mt-3 font-serif text-4xl">
-                Nos événements en images
+                {t("home.galleryTitle")}
               </h2>
             </div>
 
-            <Link to="/galerie" className="text-gold underline underline-offset-4">
-              Voir toute la galerie
+            <Link
+              to="/galerie"
+              className="text-gold underline underline-offset-4"
+            >
+              {t("home.viewGallery")}
             </Link>
           </div>
 
           {galleryItems.length === 0 ? (
             <p className="mt-8 text-ivory/70">
-              Les albums validés seront publiés ici.
+              {t("home.galleryEmpty")}
             </p>
           ) : (
             <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -180,11 +182,11 @@ export default function HomePage() {
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-              Avis clients
+              {t("home.reviews")}
             </p>
 
             <h2 className="mt-3 font-serif text-4xl">
-              Ils nous ont fait confiance
+              {t("home.reviewsTitle")}
             </h2>
           </div>
 
@@ -197,7 +199,7 @@ export default function HomePage() {
 
         {reviews.length === 0 ? (
           <p className="mt-8 text-black/70">
-            Les avis publiés apparaîtront ici.
+            {t("home.reviewsEmpty")}
           </p>
         ) : (
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -220,23 +222,23 @@ export default function HomePage() {
           to="/avis"
           className="mt-8 inline-block rounded-full border border-black px-5 py-3 font-semibold"
         >
-          Voir les avis
+          {t("home.viewReviews")}
         </Link>
       </section>
 
       <section className="bg-ivory px-6 py-16">
         <div className="mx-auto max-w-7xl">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-            Partenaires
+            {t("home.partners")}
           </p>
 
           <h2 className="mt-3 font-serif text-4xl">
-            Nos partenaires
+            {t("home.partnersTitle")}
           </h2>
 
           {partners.length === 0 ? (
             <p className="mt-8 text-black/70">
-              Les partenaires officiels apparaîtront ici.
+              {t("home.partnersEmpty")}
             </p>
           ) : (
             <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
@@ -257,11 +259,11 @@ export default function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 md:flex-row md:items-center">
           <div>
             <h2 className="font-serif text-4xl">
-              Ne manquez aucune actualité
+              {t("home.newsletterTitle")}
             </h2>
 
             <p className="mt-3">
-              Inscrivez-vous à la newsletter Les Deux Anneaux.
+              {t("home.newsletterDescription")}
             </p>
           </div>
 
@@ -269,7 +271,7 @@ export default function HomePage() {
             to="/newsletter"
             className="rounded-full bg-black px-6 py-3 font-semibold text-ivory"
           >
-            Newsletter
+            {t("footer.newsletter")}
           </Link>
         </div>
       </section>

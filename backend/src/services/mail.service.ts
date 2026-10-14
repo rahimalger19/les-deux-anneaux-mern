@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { setDefaultResultOrder } from "node:dns";
 import mjml2html from "mjml";
 import {
   EMAIL_TEMPLATE_KEYS,
@@ -7,42 +8,120 @@ import {
   type EmailTemplateLanguage,
 } from "../models/EmailTemplate";
 import { EmailLog } from "../models/EmailLog";
+setDefaultResultOrder("ipv4first");
 
-const smtpPort = Number(process.env.SMTP_PORT || 587);
+function getSmtpConfiguration() {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const password = process.env.SMTP_PASSWORD?.trim();
+  const from = process.env.SMTP_FROM?.trim();
+  const port = Number(process.env.SMTP_PORT || 587);
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: smtpPort,
-  secure: smtpPort === 465,
+  if (!host || !user || !password || !from) {
+    throw new Error("SMTP configuration is incomplete in backend/.env");
+  }
+
+  return {
+    host,
+    user,
+    password,
+    from,
+    port,
+  };
+}
+
+function getTransporter() {
+  const smtp = getSmtpConfiguration();
+
+  return nodemailer.createTransport({
+  host: smtp.host,
+  port: smtp.port,
+  secure: smtp.port === 465,
   auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
+    user: smtp.user,
+    pass: smtp.password,
   },
+  tls: {
+  servername: smtp.host,
+  rejectUnauthorized:
+    process.env.SMTP_ALLOW_INVALID_CERTS !== "true",
+},
 });
+}
 
 const defaults: Record<
   EmailTemplateKey,
-  { subject: string; content: string }
+  Record<EmailTemplateLanguage, { subject: string; content: string }>
 > = {
   NEWSLETTER_CONFIRMATION: {
+  fr: {
     subject: "Confirmez votre inscription - Les Deux Anneaux",
     content:
-      "<p>Merci pour votre inscription.</p><p><a href=\"{{confirmationUrl}}\">Confirmer mon inscription</a></p>",
+      '<p>Merci pour votre inscription.</p><p><a href="{{confirmationUrl}}">Confirmer mon inscription</a></p>',
   },
-  PASSWORD_RESET: {
-    subject: "Réinitialisation de votre mot de passe",
+  ar: {
+    subject: "تأكيد اشتراكك - القاعتان",
     content:
-      "<p>Vous avez demandé une réinitialisation de mot de passe.</p><p><a href=\"{{resetUrl}}\">Réinitialiser mon mot de passe</a></p>",
+      '<p>شكرًا لاشتراكك.</p><p><a href="{{confirmationUrl}}">تأكيد الاشتراك</a></p>',
   },
+  en: {
+    subject: "Confirm your subscription - Les Deux Anneaux",
+    content:
+      '<p>Thank you for subscribing.</p><p><a href="{{confirmationUrl}}">Confirm my subscription</a></p>',
+  },
+},
+   PASSWORD_RESET: {
+    fr: {
+      subject: "Réinitialisation de votre mot de passe",
+      content:
+        '<p>Vous avez demandé une réinitialisation de votre mot de passe.</p><p><a href="{{resetUrl}}">Réinitialiser mon mot de passe</a></p>',
+    },
+    ar: {
+      subject: "إعادة تعيين كلمة المرور",
+      content:
+        '<p>لقد طلبت إعادة تعيين كلمة المرور الخاصة بك.</p><p><a href="{{resetUrl}}">إعادة تعيين كلمة المرور</a></p>',
+    },
+    en: {
+      subject: "Reset your password",
+      content:
+        '<p>You requested a password reset.</p><p><a href="{{resetUrl}}">Reset my password</a></p>',
+    },
+  },
+
   PROFORMA: {
-    subject: "Pro forma {{proFormaNumber}} - Les Deux Anneaux",
-    content:
-      "<p>Bonjour,</p><p>Votre pro forma <strong>{{proFormaNumber}}</strong> est disponible.</p><p><a href=\"{{downloadUrl}}\">Ouvrir le pro forma</a></p>",
+    fr: {
+      subject: "Pro forma {{proFormaNumber}} - Les Deux Anneaux",
+      content:
+        '<p>Bonjour,</p><p>Votre pro forma <strong>{{proFormaNumber}}</strong> est disponible.</p><p><a href="{{downloadUrl}}">Consulter le pro forma</a></p>',
+    },
+    ar: {
+      subject: "الفاتورة الأولية رقم {{proFormaNumber}} - القاعتان",
+      content:
+        '<p>مرحبًا،</p><p>الفاتورة الأولية رقم <strong>{{proFormaNumber}}</strong> متاحة الآن.</p><p><a href="{{downloadUrl}}">عرض الفاتورة الأولية</a></p>',
+    },
+    en: {
+      subject: "Pro forma {{proFormaNumber}} - Les Deux Anneaux",
+      content:
+        '<p>Hello,</p><p>Your pro forma document <strong>{{proFormaNumber}}</strong> is now available.</p><p><a href="{{downloadUrl}}">View pro forma document</a></p>',
+    },
   },
+
   CONTACT_REPLY: {
-    subject: "Re: {{subject}} - Les Deux Anneaux",
-    content:
-      "<p>Bonjour {{recipientName}},</p><p>{{replyText}}</p><p>Les Deux Anneaux</p>",
+    fr: {
+      subject: "Re : {{subject}} - Les Deux Anneaux",
+      content:
+        '<p>Bonjour {{recipientName}},</p><p>{{replyText}}</p><p>Cordialement,<br />Les Deux Anneaux</p>',
+    },
+    ar: {
+      subject: "رد: {{subject}} - القاعتان",
+      content:
+        '<p>مرحبًا {{recipientName}}،</p><p>{{replyText}}</p><p>مع أطيب التحيات،<br />فريق القاعتين</p>',
+    },
+    en: {
+      subject: "Re: {{subject}} - Les Deux Anneaux",
+      content:
+        '<p>Hello {{recipientName}},</p><p>{{replyText}}</p><p>Best regards,<br />Les Deux Anneaux</p>',
+    },
   },
 };
 
@@ -112,8 +191,8 @@ export async function ensureEmailTemplates() {
             $setOnInsert: {
               key,
               language,
-              subject: defaults[key].subject,
-              content: defaults[key].content,
+              subject: defaults[key][language].subject,
+              content: defaults[key][language].content,
               format: "HTML",
             },
           },
@@ -150,7 +229,7 @@ async function sendTemplateEmail(data: {
 );
 
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: process.env.SMTP_FROM,
       to: data.to,
       subject,
@@ -180,13 +259,19 @@ async function sendTemplateEmail(data: {
 }
 
 export function getSmtpStatus() {
+  const smtp = {
+    host: process.env.SMTP_HOST?.trim(),
+    user: process.env.SMTP_USER?.trim(),
+    password: process.env.SMTP_PASSWORD?.trim(),
+    from: process.env.SMTP_FROM?.trim(),
+    port: Number(process.env.SMTP_PORT || 587),
+  };
+
   return {
-    hostConfigured: Boolean(process.env.SMTP_HOST?.trim()),
-    port: smtpPort,
-    authConfigured: Boolean(
-      process.env.SMTP_USER?.trim() && process.env.SMTP_PASSWORD?.trim()
-    ),
-    fromConfigured: Boolean(process.env.SMTP_FROM?.trim()),
+    hostConfigured: Boolean(smtp.host),
+    port: smtp.port,
+    authConfigured: Boolean(smtp.user && smtp.password),
+    fromConfigured: Boolean(smtp.from),
   };
 }
 
@@ -194,7 +279,7 @@ export async function sendSmtpTestEmail(to: string) {
   const subject = "Test SMTP - Les Deux Anneaux";
 
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: process.env.SMTP_FROM,
       to,
       subject,
@@ -324,7 +409,7 @@ export async function sendNewsletterCampaignEmail(data: {
   `;
 
   try {
-    await transporter.sendMail({
+    await getTransporter().sendMail({
       from: process.env.SMTP_FROM,
       to: data.to,
       subject: data.subject,
@@ -346,5 +431,19 @@ export async function sendNewsletterCampaignEmail(data: {
     });
 
     throw error;
+  }
+}
+export async function validateEmailTemplate(
+  content: string,
+  format: "HTML" | "MJML"
+) {
+  if (format !== "MJML") {
+    return;
+  }
+
+  const result = await mjml2html(content);
+
+  if (result.errors.length > 0) {
+    throw new Error("Invalid MJML template");
   }
 }

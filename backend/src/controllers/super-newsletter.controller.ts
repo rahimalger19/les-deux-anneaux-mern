@@ -26,7 +26,12 @@ function getLanguageFilter(segment: NewsletterSegment) {
 }
 
 function csvCell(value: unknown) {
-  const text = String(value ?? "");
+  let text = String(value ?? "");
+
+  // Prevent Excel/Sheets from treating subscriber data as formulas.
+  if (/^[=+\-@]/.test(text)) {
+    text = `'${text}`;
+  }
 
   return `"${text.replace(/"/g, '""')}"`;
 }
@@ -39,13 +44,31 @@ export async function getSuperNewsletter(
     const segment = getSegment(req.query.segment);
     const languageFilter = getLanguageFilter(segment);
 
+    // Pagination
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    // Optional subscriber status filter
+    const status = String(req.query.status || "");
+
+    const subscriberFilter: Record<string, unknown> = {
+      ...languageFilter,
+    };
+
+    if (["PENDING", "CONFIRMED", "UNSUBSCRIBED"].includes(status)) {
+      subscriberFilter.status = status;
+    }
+
     const [subscribers, campaigns, totalCount, confirmedCount] =
       await Promise.all([
-        NewsletterSubscriber.find(languageFilter)
+        NewsletterSubscriber.find(subscriberFilter)
           .select(
             "email phone language status confirmedAt unsubscribedAt createdAt"
           )
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
           .lean(),
 
         NewsletterCampaign.find()
@@ -53,7 +76,7 @@ export async function getSuperNewsletter(
           .sort({ createdAt: -1 })
           .lean(),
 
-        NewsletterSubscriber.countDocuments(languageFilter),
+        NewsletterSubscriber.countDocuments(subscriberFilter),
 
         NewsletterSubscriber.countDocuments({
           ...languageFilter,
@@ -64,10 +87,19 @@ export async function getSuperNewsletter(
     return res.json({
       success: true,
       selectedSegment: segment,
+
       summary: {
         subscriberCount: totalCount,
         confirmedCount,
       },
+
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.max(1, Math.ceil(totalCount / limit)),
+      },
+
       subscribers: (subscribers as any[]).map((subscriber) => ({
         id: subscriber._id.toString(),
         email: subscriber.email,
@@ -78,6 +110,7 @@ export async function getSuperNewsletter(
         unsubscribedAt: subscriber.unsubscribedAt,
         createdAt: subscriber.createdAt,
       })),
+
       campaigns: (campaigns as any[]).map((campaign) => ({
         id: campaign._id.toString(),
         subject: campaign.subject,
@@ -242,6 +275,7 @@ export async function sendSuperNewsletterCampaign(
     campaign.status = "SENDING";
     await campaign.save();
 
+    // Only confirmed subscribers receive newsletter campaigns.
     const subscribers = await NewsletterSubscriber.find({
       status: "CONFIRMED",
       ...getLanguageFilter(campaign.segment),
@@ -255,11 +289,10 @@ export async function sendSuperNewsletterCampaign(
     let failedCount = 0;
 
     for (const subscriber of subscribers as any[]) {
-      const previousDelivery =
-        await newsletterDeliveryModel.findOne({
-          campaignId: campaign._id,
-          subscriberId: subscriber._id,
-        });
+      const previousDelivery = await newsletterDeliveryModel.findOne({
+        campaignId: campaign._id,
+        subscriberId: subscriber._id,
+      });
 
       if (previousDelivery?.status === "SENT") {
         sentCount += 1;

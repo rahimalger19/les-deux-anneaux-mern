@@ -774,8 +774,17 @@ export async function resetPassword(req: Request, res: Response) {
       message: "Password reset successfully. Please sign in.",
     });
   } catch (error) {
-    console.error("Password reset error:", error);
+   console.error("Password reset error:", error);
 
+if (process.env.NODE_ENV !== "production") {
+  return res.status(500).json({
+    success: false,
+    message:
+      error instanceof Error
+        ? error.message
+        : "Unable to reset the password.",
+  });
+}
     return res.status(500).json({
       success: false,
       message: "Unable to reset the password.",

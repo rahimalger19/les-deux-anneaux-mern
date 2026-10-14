@@ -10,6 +10,7 @@ import {
   ensureEmailTemplates,
   getSmtpStatus,
   sendSmtpTestEmail,
+  validateEmailTemplate,
 } from "../services/mail.service";
 
 function getParam(value: string | string[] | undefined) {
@@ -92,7 +93,10 @@ export async function updateSuperEmailTemplate(
     }
 
     const emailTemplateModel: any = EmailTemplate;
-
+    await validateEmailTemplate(
+  content,
+  format as "HTML" | "MJML"
+);
     const template = await emailTemplateModel.findOneAndUpdate(
       { key, language },
       {

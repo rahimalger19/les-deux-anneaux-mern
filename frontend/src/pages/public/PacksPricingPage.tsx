@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../contexts/CartContext";
+import { useCurrency } from "../../hooks/useCurrency";
 import { getEventTypes, getPacks } from "../../services/catalog.service";
 import {
   estimateBooking,
@@ -14,17 +15,10 @@ type PricingMarket = "RESIDENT" | "DIASPORA";
 
 const slots: BookingSlot[] = ["AFTERNOON", "EVENING", "NIGHT", "DAY"];
 
-function formatDZD(amount: number) {
-  return new Intl.NumberFormat("fr-DZ", {
-    style: "currency",
-    currency: "DZD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 export default function PacksPricingPage() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { setPackKey: setCartPackKey } = useCart();
+  const { formatPrice } = useCurrency();
 
   const [packs, setPacks] = useState<Pack[]>([]);
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
@@ -46,6 +40,17 @@ export default function PacksPricingPage() {
   const locale =
     language === "fr-DZ" ? "fr" : language === "ar-DZ" ? "ar" : "en";
 
+  function getSlotLabel(value: BookingSlot) {
+    const labels = {
+      AFTERNOON: t("pricing.slot.AFTERNOON"),
+      EVENING: t("pricing.slot.EVENING"),
+      NIGHT: t("pricing.slot.NIGHT"),
+      DAY: t("pricing.slot.DAY"),
+    };
+
+    return labels[value];
+  }
+
   const selectedEventType = eventTypes.find(
     (eventType) => eventType.key === eventTypeKey
   );
@@ -57,10 +62,10 @@ export default function PacksPricingPage() {
         setEventTypes(eventTypesData);
       })
       .catch(() => {
-        setMessage("Impossible de charger les packs et tarifs.");
+        setMessage(t("pricing.loadError"));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [t]);
 
   function clearEstimate() {
     setEstimate(null);
@@ -80,9 +85,7 @@ export default function PacksPricingPage() {
       !eventDate ||
       womenGuests + menGuests < 1
     ) {
-      setMessage(
-        "Choisissez une date, un événement, un pack et au moins un invité."
-      );
+      setMessage(t("pricing.requiredFields"));
       return;
     }
 
@@ -105,8 +108,7 @@ export default function PacksPricingPage() {
       setEstimate(result.estimate);
     } catch (error: any) {
       setMessage(
-        error.response?.data?.message ||
-          "Impossible de calculer l'estimation."
+        error.response?.data?.message || t("pricing.estimateError")
       );
     } finally {
       setCalculating(false);
@@ -114,17 +116,19 @@ export default function PacksPricingPage() {
   }
 
   if (loading) {
-    return <p className="p-10">Chargement des packs…</p>;
+    return <p className="p-10">{t("pricing.loadError")}</p>;
   }
 
   return (
     <main className="bg-background px-6 py-16 text-foreground">
       <div className="mx-auto max-w-7xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">
-          Offres et tarifs
+          {t("pricing.eyebrow")}
         </p>
 
-        <h1 className="mt-2 font-serif text-4xl">Packs et tarifs</h1>
+        <h1 className="mt-2 font-serif text-4xl">
+          {t("pricing.title")}
+        </h1>
 
         <div className="mt-6 flex flex-wrap gap-3">
           <button
@@ -139,7 +143,7 @@ export default function PacksPricingPage() {
                 : "rounded-full border border-foreground/20 px-5 py-3"
             }
           >
-            Résidence DZ
+            {t("pricing.resident")}
           </button>
 
           <button
@@ -154,7 +158,7 @@ export default function PacksPricingPage() {
                 : "rounded-full border border-foreground/20 px-5 py-3"
             }
           >
-            Diaspora / immigrants
+            {t("pricing.diaspora")}
           </button>
         </div>
 
@@ -190,18 +194,19 @@ export default function PacksPricingPage() {
                 {basePrice !== undefined ? (
                   <>
                     <p className="mt-6 text-3xl font-bold">
-                      {formatDZD(basePrice)}
+                      {formatPrice(basePrice)}
                     </p>
 
                     {extraGuestPrice !== undefined && (
                       <p className="mt-1 text-sm text-foreground/60">
-                        Invité supplémentaire : {formatDZD(extraGuestPrice)}
+                        {t("pricing.extraGuest")}:{" "}
+                        {formatPrice(extraGuestPrice)}
                       </p>
                     )}
                   </>
                 ) : (
                   <p className="mt-6 text-sm text-red-700">
-                    Tarif Diaspora temporairement indisponible.
+                    {t("pricing.unavailable")}
                   </p>
                 )}
 
@@ -220,7 +225,9 @@ export default function PacksPricingPage() {
                       : "mt-6 rounded-full bg-gold px-5 py-3 font-semibold text-black"
                   }
                 >
-                  {selected ? "Pack sélectionné" : "Choisir ce pack"}
+                  {selected
+                    ? t("pricing.selected")
+                    : t("pricing.choose")}
                 </button>
               </article>
             );
@@ -228,11 +235,15 @@ export default function PacksPricingPage() {
         </div>
 
         <section className="mt-12 rounded-2xl border border-foreground/15 p-6">
-          <h2 className="font-serif text-3xl">Estimer ma réservation</h2>
+          <h2 className="font-serif text-3xl">
+            {t("pricing.estimateTitle")}
+          </h2>
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <label>
-              <span className="text-sm font-semibold">Date</span>
+              <span className="text-sm font-semibold">
+                {t("pricing.date")}
+              </span>
               <input
                 type="date"
                 value={eventDate}
@@ -247,7 +258,7 @@ export default function PacksPricingPage() {
 
             <label>
               <span className="text-sm font-semibold">
-                Type d'événement
+                {t("pricing.eventType")}
               </span>
               <select
                 value={eventTypeKey}
@@ -271,7 +282,7 @@ export default function PacksPricingPage() {
                 }}
                 className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
               >
-                <option value="">Choisir un événement</option>
+                <option value="">{t("pricing.selectEvent")}</option>
                 {eventTypes.map((eventType) => (
                   <option key={eventType.key} value={eventType.key}>
                     {eventType.name[locale]}
@@ -281,7 +292,9 @@ export default function PacksPricingPage() {
             </label>
 
             <label>
-              <span className="text-sm font-semibold">Créneau</span>
+              <span className="text-sm font-semibold">
+                {t("pricing.slot")}
+              </span>
               <select
                 value={slot}
                 onChange={(event) => {
@@ -297,7 +310,7 @@ export default function PacksPricingPage() {
 
                   return (
                     <option key={item} value={item} disabled={!allowed}>
-                      {item}
+                      {getSlotLabel(item)}
                     </option>
                   );
                 })}
@@ -305,13 +318,15 @@ export default function PacksPricingPage() {
             </label>
 
             <label>
-              <span className="text-sm font-semibold">Pack</span>
+              <span className="text-sm font-semibold">
+                {t("nav.pricing")}
+              </span>
               <select
                 value={selectedPackKey}
                 onChange={(event) => choosePack(event.target.value)}
                 className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
               >
-                <option value="">Choisir un pack</option>
+                <option value="">{t("pricing.selectPack")}</option>
                 {packs.map((pack) => (
                   <option key={pack.key} value={pack.key}>
                     {pack.name[locale]}
@@ -321,7 +336,9 @@ export default function PacksPricingPage() {
             </label>
 
             <label>
-              <span className="text-sm font-semibold">Invitées femmes</span>
+              <span className="text-sm font-semibold">
+                {t("pricing.womenGuests")}
+              </span>
               <input
                 type="number"
                 min="0"
@@ -335,7 +352,9 @@ export default function PacksPricingPage() {
             </label>
 
             <label>
-              <span className="text-sm font-semibold">Invités hommes</span>
+              <span className="text-sm font-semibold">
+                {t("pricing.menGuests")}
+              </span>
               <input
                 type="number"
                 min="0"
@@ -355,7 +374,9 @@ export default function PacksPricingPage() {
             disabled={calculating}
             className="mt-6 rounded-full bg-gold px-6 py-3 font-semibold text-black"
           >
-            {calculating ? "Calcul…" : "Calculer mon estimation"}
+            {calculating
+              ? t("pricing.calculating")
+              : t("pricing.calculate")}
           </button>
 
           {message && (
@@ -366,23 +387,26 @@ export default function PacksPricingPage() {
 
           {estimate && (
             <div className="mt-6 rounded-2xl border border-gold bg-gold/10 p-6">
-              <p className="text-sm text-foreground/70">Total estimé</p>
+              <p className="text-sm text-foreground/70">
+                {t("pricing.estimateTotal")}
+              </p>
               <p className="mt-1 text-3xl font-bold">
-                {formatDZD(estimate.pricing.totalDZD)}
+                {formatPrice(estimate.pricing.totalDZD)}
               </p>
 
               <p className="mt-4 text-sm text-foreground/70">
-                Acompte ({estimate.eventType.depositPercent}%)
+                {t("pricing.deposit")} (
+                {estimate.eventType.depositPercent}%)
               </p>
               <p className="mt-1 text-2xl font-bold text-gold">
-                {formatDZD(estimate.pricing.depositDZD)}
+                {formatPrice(estimate.pricing.depositDZD)}
               </p>
 
               <Link
                 to="/reservation"
                 className="mt-6 inline-block rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
               >
-                Continuer vers la réservation
+                {t("pricing.continueBooking")}
               </Link>
             </div>
           )}

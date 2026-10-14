@@ -4,6 +4,7 @@ import { useCurrency } from "../../hooks/useCurrency";
 import { useLanguage } from "../../hooks/useLanguage";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
+import { getDashboardRoute } from "../../lib/dashboard-route";
 
 const navigation = [
   { to: "/", key: "nav.home" },
@@ -28,13 +29,22 @@ export default function Header() {
       ? "/images/logo-dark-mode.jpg"
       : "/images/logo-white-mode.jpg";
 
+  const dashboardTo = getDashboardRoute(user?.role);
+
+const dashboardLabel =
+  dashboardTo === "/super"
+    ? t("account.superAdministration")
+    : dashboardTo === "/admin"
+      ? t("account.administration")
+      : t("account.clientSpace");
+
   return (
     <header className="sticky top-0 z-50 border-b border-black/10 bg-ivory/95 backdrop-blur-md dark:border-white/10 dark:bg-black/95">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="h-14 w-40 shrink-0">
           <img
             src={logo}
-            alt="Les Deux Anneaux"
+            alt={t("brand.name")}
             className="h-full w-full object-contain"
           />
         </Link>
@@ -82,18 +92,18 @@ export default function Header() {
             }
             className="rounded-lg border border-black/10 bg-transparent px-2 py-2 text-sm dark:border-white/10 dark:text-ivory"
           >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-            <option value="system">System</option>
+            <option value="light">{t("common.light")}</option>
+            <option value="dark">{t("common.dark")}</option>
+            <option value="system">{t("common.system")}</option>
           </select>
 
           {/* Authentication links */}
           {user ? (
             <Link
-              to="/espace"
+              to={dashboardTo}
               className="rounded-full border border-black/20 px-4 py-2.5 text-sm font-semibold text-black dark:border-white/20 dark:text-ivory"
             >
-              Mon espace
+              {dashboardLabel}
             </Link>
           ) : (
             <>
@@ -101,14 +111,14 @@ export default function Header() {
                 to="/connexion"
                 className="text-sm font-semibold text-black transition hover:text-gold dark:text-ivory"
               >
-                Connexion
+                {t("common.login")}
               </Link>
 
               <Link
                 to="/inscription"
                 className="rounded-full border border-black/20 px-4 py-2.5 text-sm font-semibold text-black dark:border-white/20 dark:text-ivory"
               >
-                S’inscrire
+                {t("common.register")}
               </Link>
             </>
           )}
@@ -126,7 +136,9 @@ export default function Header() {
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+          aria-label={
+            menuOpen ? t("common.closeMenu") : t("common.openMenu")
+          }
           aria-expanded={menuOpen}
           className="rounded-lg p-2 text-2xl text-black dark:text-ivory lg:hidden"
         >
@@ -151,11 +163,11 @@ export default function Header() {
           {/* Authentication links */}
           {user ? (
             <Link
-              to="/espace"
+              to={dashboardTo}
               onClick={() => setMenuOpen(false)}
               className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
             >
-              Mon espace
+              {dashboardLabel}
             </Link>
           ) : (
             <>
@@ -164,7 +176,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
               >
-                Connexion
+                {t("common.login")}
               </Link>
 
               <Link
@@ -172,7 +184,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="rounded-lg px-4 py-3 font-semibold text-black dark:text-ivory"
               >
-                S’inscrire
+                {t("common.register")}
               </Link>
             </>
           )}
@@ -210,9 +222,9 @@ export default function Header() {
               }
               className="rounded-lg border border-black/10 bg-transparent px-2 py-2 dark:border-white/10 dark:text-ivory"
             >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="system">System</option>
+              <option value="light">{t("common.light")}</option>
+              <option value="dark">{t("common.dark")}</option>
+              <option value="system">{t("common.system")}</option>
             </select>
           </div>
 

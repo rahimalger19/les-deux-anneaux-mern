@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useLanguage } from "../../hooks/useLanguage";
 import { getEventTypes } from "../../services/catalog.service";
@@ -14,7 +13,7 @@ import type { EventType } from "../../types/catalog.types";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function GalleryPage() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { user } = useAuth();
 
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
@@ -42,20 +41,18 @@ export default function GalleryPage() {
     void loadGallery();
   }, []);
 
-  
-async function selectFilter(eventTypeKey: string) {
-  setSelectedEventType(eventTypeKey);
-  setSelectedAlbum("");
+  async function selectFilter(eventTypeKey: string) {
+    setSelectedEventType(eventTypeKey);
+    setSelectedAlbum("");
 
-  const [galleryItems, galleryAlbums] = await Promise.all([
-    getGalleryItems(eventTypeKey || undefined),
-    getGalleryAlbums(eventTypeKey || undefined),
-  ]);
+    const [galleryItems, galleryAlbums] = await Promise.all([
+      getGalleryItems(eventTypeKey || undefined),
+      getGalleryAlbums(eventTypeKey || undefined),
+    ]);
 
-  setItems(galleryItems);
-  setAlbums(galleryAlbums);
-}
-
+    setItems(galleryItems);
+    setAlbums(galleryAlbums);
+  }
 
   async function selectAlbum(album: string) {
     setSelectedAlbum(album);
@@ -83,26 +80,26 @@ async function selectFilter(eventTypeKey: string) {
 
   async function handleFavorite(itemId: string) {
     if (!user) {
-      window.alert("Connectez-vous pour enregistrer un favori.");
+      window.alert(t("gallery.loginToFavorite"));
       return;
     }
 
     try {
       await addMyGalleryFavorite(itemId);
-      window.alert("Ajouté à vos favoris.");
+      window.alert(t("gallery.favoriteAdded"));
     } catch {
-      window.alert("Impossible d'ajouter ce favori.");
+      window.alert(t("gallery.favoriteError"));
     }
   }
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16">
       <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-        Galerie
+        {t("gallery.eyebrow")}
       </p>
 
       <h1 className="mt-3 font-serif text-4xl">
-        Nos événements en images
+        {t("gallery.title")}
       </h1>
 
       {/* Filtres par type d'événement */}
@@ -116,7 +113,7 @@ async function selectFilter(eventTypeKey: string) {
               : "rounded-full border border-black/20 px-5 py-3"
           }
         >
-          Tous
+          {t("gallery.all")}
         </button>
 
         {eventTypes.map((eventType) => (
@@ -147,7 +144,7 @@ async function selectFilter(eventTypeKey: string) {
                 : "rounded-full border border-black/20 px-5 py-3"
             }
           >
-            Tous les albums
+            {t("gallery.allAlbums")}
           </button>
 
           {albums.map((album) => (
@@ -169,7 +166,7 @@ async function selectFilter(eventTypeKey: string) {
 
       {items.length === 0 ? (
         <p className="mt-10 rounded-xl border border-black/10 p-6 text-black/70">
-          Aucun album publié pour ce type d’événement.
+          {t("gallery.empty")}
         </p>
       ) : (
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -182,7 +179,7 @@ async function selectFilter(eventTypeKey: string) {
                 type="button"
                 onClick={() => setSelected(item)}
                 className="block w-full"
-                aria-label={`Ouvrir ${item.title[locale]}`}
+                aria-label={`${t("gallery.open")} ${item.title[locale]}`}
               >
                 <img
                   src={item.imageUrl}
@@ -212,7 +209,7 @@ async function selectFilter(eventTypeKey: string) {
                     onClick={() => void handleFavorite(item._id)}
                     className="ml-3 mt-4 rounded-full border border-black/15 px-4 py-2 text-sm"
                   >
-                    Ajouter aux favoris
+                    {t("gallery.addFavorite")}
                   </button>
                 )}
               </div>
@@ -232,7 +229,7 @@ async function selectFilter(eventTypeKey: string) {
             onClick={() => setSelected(null)}
             className="absolute right-6 top-6 rounded-full bg-white px-5 py-3 font-semibold text-black"
           >
-            Fermer
+            {t("gallery.close")}
           </button>
 
           <div className="max-h-full max-w-5xl">
@@ -261,4 +258,3 @@ async function selectFilter(eventTypeKey: string) {
     </main>
   );
 }
-

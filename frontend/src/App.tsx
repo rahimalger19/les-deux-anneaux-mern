@@ -68,6 +68,8 @@ import PageViewTracker from "./components/analytics/PageViewTracker";
 import SuperTrackingPage from "./pages/super/SuperTrackingPage";
 import SuperSystemPage from "./pages/super/SuperSystemPage";
 import SuperPricingPage from "./pages/super/SuperPricingPage";
+import AdminLayout from "./components/layout/AdminLayout";
+import SuperLayout from "./components/layout/SuperLayout";
 type RoleRouteRoles = ComponentProps<typeof RoleRoute>["roles"];
 
 
@@ -136,230 +138,55 @@ export default function App() {
 </Route>
          
 <Route
-  path="/admin"
   element={
     <RoleRoute roles={adminRoles}>
-      <AdminDashboardPage />
+      <AdminLayout />
     </RoleRoute>
   }
-/>
+>
+  <Route path="/admin" element={<AdminDashboardPage />} />
+  <Route path="/admin/calendrier" element={<AdminCalendarPage />} />
+  <Route path="/admin/disponibilites" element={<AdminAvailabilityPage />} />
+  <Route path="/admin/paiements" element={<AdminPaymentsPage />} />
+  <Route path="/admin/messages" element={<AdminContactMessagesPage />} />
+  <Route path="/admin/reservations" element={<AdminBookingsPage />} />
+  <Route
+    path="/admin/reservations/:id"
+    element={<AdminBookingDetailsPage />}
+  />
+  <Route path="/admin/rendez-vous" element={<AdminAppointmentsPage />} />
+  <Route path="/admin/clients" element={<AdminClientsPage />} />
+  <Route
+    path="/admin/clients/:kind/:id"
+    element={<AdminClientDetailsPage />}
+  />
+  <Route path="/admin/avis" element={<AdminReviewsPage />} />
+  <Route path="/admin/galerie" element={<AdminGalleryPage />} />
+  <Route path="/admin/jour-j" element={<AdminDayOfPage />} />
+</Route>
 
-<Route
-  path="/admin/calendrier"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminCalendarPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/disponibilites"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminAvailabilityPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/paiements"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminPaymentsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/messages"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminContactMessagesPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/reservations"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminBookingsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/reservations/:id"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminBookingDetailsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/rendez-vous"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminAppointmentsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/clients"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminClientsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/clients/:kind/:id"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminClientDetailsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/avis"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminReviewsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/galerie"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminGalleryPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/admin/jour-j"
-  element={
-    <RoleRoute roles={adminRoles}>
-      <AdminDayOfPage />
-    </RoleRoute>
-  }
-/>
 
 
 <Route
-  path="/super"
   element={
     <RoleRoute roles={superAdminRoles}>
-      <SuperDashboardPage />
+      <SuperLayout />
     </RoleRoute>
   }
-/>
-
-<Route
-  path="/super/equipe"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperTeamPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/tarifs"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperPricingPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/packs"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperPacksPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/devises"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperCurrenciesPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/marque"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperPaymentsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/smtp"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperEmailsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/sms"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperSmsPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/partenaires"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperPartnersPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/tracking"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperTrackingPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/newsletter"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperNewsletterPage />
-    </RoleRoute>
-  }
-/>
-
-<Route
-  path="/super/systeme"
-  element={
-    <RoleRoute roles={superAdminRoles}>
-      <SuperSystemPage />
-    </RoleRoute>
-  }
-/>
+>
+  <Route path="/super" element={<SuperDashboardPage />} />
+  <Route path="/super/equipe" element={<SuperTeamPage />} />
+  <Route path="/super/tarifs" element={<SuperPricingPage />} />
+  <Route path="/super/packs" element={<SuperPacksPage />} />
+  <Route path="/super/devises" element={<SuperCurrenciesPage />} />
+  <Route path="/super/marque" element={<SuperPaymentsPage />} />
+  <Route path="/super/smtp" element={<SuperEmailsPage />} />
+  <Route path="/super/sms" element={<SuperSmsPage />} />
+  <Route path="/super/partenaires" element={<SuperPartnersPage />} />
+  <Route path="/super/tracking" element={<SuperTrackingPage />} />
+  <Route path="/super/newsletter" element={<SuperNewsletterPage />} />
+  <Route path="/super/systeme" element={<SuperSystemPage />} />
+</Route>
 
 
 

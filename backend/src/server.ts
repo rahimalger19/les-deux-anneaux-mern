@@ -49,7 +49,7 @@ import superTrackingRoutes from "./routes/super-tracking.routes";
 import { startMaintenanceJobs } from "./services/maintenance.service";
 import superSystemRoutes from "./routes/super-system.routes";
 import legalRoutes from "./routes/legal.routes";
-
+import currencyRoutes from "./routes/currency.routes";
 
 dotenv.config();
 
@@ -78,6 +78,7 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/admin/communication", adminCommunicationRoutes);
 app.use("/api/public", publicContentRoutes);
 app.use("/api/public/legal", legalRoutes);
+app.use("/api/currencies", currencyRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/gallery-favorites", galleryFavoriteRoutes);
