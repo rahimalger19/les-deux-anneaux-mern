@@ -30,6 +30,9 @@ export type Pack = {
   extraGuestPriceDZD: number;
   includedItems: string[];
   includedGuests: number;
+  diasporaName?: LocalizedText;
+diasporaDescription?: LocalizedText;
 diasporaBasePriceDZD?: number;
 diasporaExtraGuestPriceDZD?: number;
+diasporaIncludedItems: string[];
 };

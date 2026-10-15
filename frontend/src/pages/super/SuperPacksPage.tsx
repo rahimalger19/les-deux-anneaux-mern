@@ -26,6 +26,9 @@ type Draft = {
   diasporaBasePriceDZD: string;
   diasporaExtraGuestPriceDZD: string;
   includedItems: string[];
+  diasporaName: LocalizedText;
+diasporaDescription: LocalizedText;
+diasporaIncludedItems: string[];
 };
 
 const locales = ["fr", "ar", "en"] as const;
@@ -41,6 +44,9 @@ function emptyDraft(): Draft {
     diasporaBasePriceDZD: "",
     diasporaExtraGuestPriceDZD: "",
     includedItems: [],
+    diasporaName: { fr: "", ar: "", en: "" },
+diasporaDescription: { fr: "", ar: "", en: "" },
+diasporaIncludedItems: [],
   };
 }
 
@@ -64,6 +70,9 @@ function definitionToDraft(
         ? ""
         : String(definition.diasporaExtraGuestPriceDZD),
     includedItems: definition.includedItems,
+    diasporaName: definition.diasporaName,
+diasporaDescription: definition.diasporaDescription,
+diasporaIncludedItems: definition.diasporaIncludedItems,
   };
 }
 
@@ -81,6 +90,9 @@ function draftToDefinition(draft: Draft): PackDefinition {
       ? Number(draft.diasporaExtraGuestPriceDZD)
       : undefined,
     includedItems: draft.includedItems,
+    diasporaName: draft.diasporaName,
+diasporaDescription: draft.diasporaDescription,
+diasporaIncludedItems: draft.diasporaIncludedItems,
   };
 }
 
@@ -157,6 +169,19 @@ export default function SuperPacksPage() {
         : [...current.includedItems, serviceKey],
     }));
   }
+
+  function toggleDiasporaIncludedItem(serviceKey: string) {
+  setDraft((current) => ({
+    ...current,
+    diasporaIncludedItems: current.diasporaIncludedItems.includes(
+      serviceKey
+    )
+      ? current.diasporaIncludedItems.filter(
+          (item) => item !== serviceKey
+        )
+      : [...current.diasporaIncludedItems, serviceKey],
+  }));
+}
 
   function editPack(pack: SuperPack) {
     setMode("PACK");
@@ -366,6 +391,64 @@ export default function SuperPacksPage() {
               </label>
             ))}
           </div>
+          
+          <section className="mt-8 rounded-2xl border border-gold/40 bg-gold/5 p-5">
+  <h3 className="text-lg font-bold text-gold">
+    Contenu du pack diaspora
+  </h3>
+
+  <div className="mt-4 grid gap-4 md:grid-cols-3">
+    {locales.map((locale) => (
+      <label key={`diaspora-name-${locale}`}>
+        <span className="text-sm font-semibold">
+          Nom diaspora {locale.toUpperCase()}
+        </span>
+
+        <input
+          required
+          dir={locale === "ar" ? "rtl" : "ltr"}
+          value={draft.diasporaName[locale]}
+          onChange={(event) =>
+            setDraft((current) => ({
+              ...current,
+              diasporaName: {
+                ...current.diasporaName,
+                [locale]: event.target.value,
+              },
+            }))
+          }
+          className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
+        />
+      </label>
+    ))}
+  </div>
+
+  <div className="mt-4 grid gap-4 md:grid-cols-3">
+    {locales.map((locale) => (
+      <label key={`diaspora-description-${locale}`}>
+        <span className="text-sm font-semibold">
+          Description diaspora {locale.toUpperCase()}
+        </span>
+
+        <textarea
+          required
+          dir={locale === "ar" ? "rtl" : "ltr"}
+          value={draft.diasporaDescription[locale]}
+          onChange={(event) =>
+            setDraft((current) => ({
+              ...current,
+              diasporaDescription: {
+                ...current.diasporaDescription,
+                [locale]: event.target.value,
+              },
+            }))
+          }
+          className="mt-2 min-h-28 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
+        />
+      </label>
+    ))}
+  </div>
+</section>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <label>
@@ -488,6 +571,34 @@ export default function SuperPacksPage() {
               ))}
             </div>
           </section>
+
+           <section className="mt-8 rounded-2xl border border-gold/40 bg-gold/5 p-5">
+  <h3 className="font-semibold text-gold">
+    Services inclus pour la diaspora
+  </h3>
+
+  <div className="mt-3 grid gap-3 md:grid-cols-2">
+    {services.map((service) => (
+      <label
+        key={`diaspora-${service.id}`}
+        className="flex items-center gap-3 rounded-xl border border-foreground/15 p-3"
+      >
+        <input
+          type="checkbox"
+          checked={draft.diasporaIncludedItems.includes(service.key)}
+          onChange={() => toggleDiasporaIncludedItem(service.key)}
+        />
+
+        <span>
+          <strong>{service.name.fr}</strong>
+          <span className="block text-xs text-foreground/60">
+            {service.key} · {service.category}
+          </span>
+        </span>
+      </label>
+    ))}
+  </div>
+</section>
 
           <button
             type="submit"

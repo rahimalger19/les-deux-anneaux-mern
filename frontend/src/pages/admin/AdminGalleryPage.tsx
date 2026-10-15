@@ -17,6 +17,7 @@ type GalleryEdit = {
   titleAr: string;
   titleEn: string;
   sortOrder: string;
+  imageRightsConfirmed: boolean;
 };
 
 export default function AdminGalleryPage() {
@@ -54,6 +55,7 @@ export default function AdminGalleryPage() {
               titleAr: item.title.ar,
               titleEn: item.title.en,
               sortOrder: String(item.sortOrder),
+              imageRightsConfirmed: item.imageRightsConfirmed,
             },
           ])
         )
@@ -75,7 +77,7 @@ export default function AdminGalleryPage() {
   function updateEdit(
     itemId: string,
     field: keyof GalleryEdit,
-    value: string
+    value: string | boolean
   ) {
     setEdits((current) => ({
       ...current,
@@ -156,6 +158,7 @@ export default function AdminGalleryPage() {
         titleAr: edit.titleAr.trim(),
         titleEn: edit.titleEn.trim(),
         sortOrder: Number(edit.sortOrder),
+        imageRightsConfirmed: edit.imageRightsConfirmed,
       });
 
       setMessage(result.message);
@@ -443,11 +446,21 @@ export default function AdminGalleryPage() {
                     </label>
                   </div>
 
-                  <p className="mt-4 text-sm text-foreground/65">
-                    {item.imageRightsConfirmed
-                      ? "Droits image confirmés"
-                      : "Droits image non confirmés"}
-                  </p>
+                  <label className="mt-4 flex items-center gap-3 text-sm">
+  <input
+    type="checkbox"
+    checked={edit.imageRightsConfirmed}
+    onChange={(event) =>
+      updateEdit(
+        item.id,
+        "imageRightsConfirmed",
+        event.target.checked
+      )
+    }
+  />
+  Je confirme que Les Deux Anneaux possède les droits de
+  diffusion de cette image.
+</label>
 
                   <div className="mt-5 flex flex-wrap gap-3">
                     <button

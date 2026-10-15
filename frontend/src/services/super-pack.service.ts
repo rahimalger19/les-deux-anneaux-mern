@@ -9,14 +9,16 @@ export type LocalizedText = {
 export type PackDefinition = {
   name: LocalizedText;
   description: LocalizedText;
+  diasporaName: LocalizedText;
+  diasporaDescription: LocalizedText;
   basePriceDZD: number;
   extraGuestPriceDZD: number;
   includedGuests: number;
   diasporaBasePriceDZD?: number;
   diasporaExtraGuestPriceDZD?: number;
   includedItems: string[];
+  diasporaIncludedItems: string[];
 };
-
 export type SuperPack = PackDefinition & {
   id: string;
   key: string;

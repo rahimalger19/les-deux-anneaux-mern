@@ -41,6 +41,7 @@ export async function updateAdminGalleryItem(
     titleEn?: string;
     active?: boolean;
     sortOrder?: number;
+    imageRightsConfirmed?: boolean;
   }
 ) {
   const response = await api.patch(`/admin/gallery/${itemId}`, data);

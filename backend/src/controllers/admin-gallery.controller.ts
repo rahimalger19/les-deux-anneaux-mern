@@ -136,7 +136,7 @@ export async function createAdminGalleryItems(
           ar: titleAr,
           en: titleEn,
         },
-        imageUrl: `\({backendUrl}/uploads/gallery/\){file.filename}`,
+        imageUrl: `${backendUrl}/uploads/gallery/${file.filename}`,
         likeCount: 0,
         active: true,
         sortOrder: baseOrder + index,
@@ -277,6 +277,22 @@ export async function updateAdminGalleryItem(
     if (hasBodyField(body, "active")) {
       item.active = toBoolean(body.active);
     }
+    
+    if (hasBodyField(body, "imageRightsConfirmed")) {
+  const imageRightsConfirmed = toBoolean(
+    body.imageRightsConfirmed
+  );
+
+  item.imageRightsConfirmed = imageRightsConfirmed;
+
+  if (imageRightsConfirmed) {
+    item.imageRightsConfirmedAt = new Date();
+    item.imageRightsConfirmedBy = req.user?.id as any;
+  } else {
+    item.imageRightsConfirmedAt = undefined;
+    item.imageRightsConfirmedBy = undefined;
+  }
+}
 
     if (hasBodyField(body, "sortOrder")) {
       const sortOrder = Number(body.sortOrder);
@@ -300,6 +316,7 @@ export async function updateAdminGalleryItem(
         "titleEn",
         "active",
         "sortOrder",
+        "imageRightsConfirmed",
       ].includes(key)
     );
 

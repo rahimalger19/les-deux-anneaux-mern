@@ -19,6 +19,7 @@ export default function GalleryPage() {
   const [eventTypes, setEventTypes] = useState<EventType[]>([]);
   const [albums, setAlbums] = useState<GalleryAlbum[]>([]);
   const [items, setItems] = useState<GalleryItem[]>([]);
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<GalleryItem | null>(null);
   const [selectedEventType, setSelectedEventType] = useState("");
   const [selectedAlbum, setSelectedAlbum] = useState("");
@@ -60,6 +61,7 @@ export default function GalleryPage() {
   }
 
   async function handleLike(itemId: string) {
+  try {
     const result = await likeGalleryItem(itemId);
 
     setItems((current) =>
@@ -70,13 +72,28 @@ export default function GalleryPage() {
       )
     );
 
+    setLikedIds((current) => {
+      const next = new Set(current);
+
+      if (result.liked) {
+        next.add(itemId);
+      } else {
+        next.delete(itemId);
+      }
+
+      return next;
+    });
+
     if (selected?._id === itemId) {
-      setSelected({
-        ...selected,
-        likeCount: result.likeCount,
-      });
+      setSelected((current) =>
+        current
+          ? { ...current, likeCount: result.likeCount }
+          : null
+      );
     }
-  }
+  } catch {
+     window.alert(t("gallery.likeError"));  }
+}
 
   async function handleFavorite(itemId: string) {
     if (!user) {
@@ -200,7 +217,7 @@ export default function GalleryPage() {
                   onClick={() => void handleLike(item._id)}
                   className="mt-4 rounded-full border border-black/15 px-4 py-2 text-sm"
                 >
-                  ♥ {item.likeCount}
+                  {likedIds.has(item._id) ? "♥" : "♡"} {item.likeCount}
                 </button>
 
                 {user && (
@@ -249,7 +266,7 @@ export default function GalleryPage() {
                 onClick={() => void handleLike(selected._id)}
                 className="rounded-full border border-ivory/40 px-4 py-2"
               >
-                ♥ {selected.likeCount}
+                {likedIds.has(selected._id) ? "♥" : "♡"} {selected.likeCount}
               </button>
             </div>
           </div>

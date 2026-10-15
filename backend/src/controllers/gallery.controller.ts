@@ -158,16 +158,35 @@ export async function likeGalleryItem(req: Request, res: Response) {
       });
     } catch (error: any) {
       if (error?.code === 11000) {
-        const currentItem = await GalleryItem.findById(item._id).select(
-          "likeCount"
-        );
+  await GalleryLike.deleteOne({
+    galleryItemId: item._id,
+    visitorHash,
+  });
 
-        return res.json({
-          success: true,
-          liked: false,
-          likeCount: currentItem?.likeCount || 0,
-        });
-      }
+  const updatedItem = await GalleryItem.findOneAndUpdate(
+    {
+      _id: item._id,
+      active: true,
+      likeCount: { $gt: 0 },
+    },
+    {
+      $inc: { likeCount: -1 },
+    },
+    {
+      new: true,
+    }
+  ).select("likeCount");
+
+  const currentItem =
+    updatedItem ||
+    (await GalleryItem.findById(item._id).select("likeCount"));
+
+  return res.json({
+    success: true,
+    liked: false,
+    likeCount: currentItem?.likeCount || 0,
+  });
+}
 
       throw error;
     }

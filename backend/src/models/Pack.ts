@@ -15,8 +15,11 @@ export interface IPack extends Document {
   includedItems: string[];
   active: boolean;
   includedGuests: number;
+  diasporaName?: LocalizedText;
+  diasporaDescription?: LocalizedText;
   diasporaBasePriceDZD?: number;
   diasporaExtraGuestPriceDZD?: number;
+  diasporaIncludedItems: string[];
 }
 
 const localizedTextSchema = new Schema<LocalizedText>(
@@ -37,8 +40,28 @@ const packSchema = new Schema<IPack>(
     basePriceDZD: { type: Number, required: true, min: 0 },
     extraGuestPriceDZD: { type: Number, required: true, min: 0 },
     includedGuests: {type: Number,required: true,min: 0,},
-    diasporaBasePriceDZD: {type: Number, min: 0,},
-    diasporaExtraGuestPriceDZD: {type: Number,min: 0,},
+    diasporaName: {
+  type: localizedTextSchema,
+},
+
+diasporaDescription: {
+  type: localizedTextSchema,
+},
+
+diasporaBasePriceDZD: {
+  type: Number,
+  min: 0,
+},
+
+diasporaExtraGuestPriceDZD: {
+  type: Number,
+  min: 0,
+},
+
+diasporaIncludedItems: {
+  type: [String],
+  default: [],
+},
     includedItems: [{ type: String, required: true }],
     active: { type: Boolean, default: true },
   },

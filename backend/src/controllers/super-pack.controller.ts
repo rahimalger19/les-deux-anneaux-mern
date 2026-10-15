@@ -79,10 +79,17 @@ async function validateDefinition(body: Record<string, unknown>) {
       : Number(body.diasporaExtraGuestPriceDZD);
 
   const includedItems = cleanItems(body.includedItems);
-
+  const diasporaIncludedItems = cleanItems(
+  body.diasporaIncludedItems
+);
   if (
     !validLocalizedText(body.name) ||
     !validLocalizedText(body.description) ||
+    !validLocalizedText(body.diasporaName) ||
+    !validLocalizedText(body.diasporaDescription) ||
+    diasporaBasePriceDZD === undefined ||
+    diasporaExtraGuestPriceDZD === undefined ||
+    diasporaIncludedItems.length === 0 ||
     !Number.isFinite(basePriceDZD) ||
     basePriceDZD < 0 ||
     !Number.isFinite(extraGuestPriceDZD) ||
@@ -99,29 +106,37 @@ async function validateDefinition(body: Record<string, unknown>) {
     throw new Error("Invalid pack information");
   }
 
-  if (includedItems.length > 0) {
-    const serviceCount = await Service.countDocuments({
-      key: { $in: includedItems },
-      active: true,
-    });
+  const allIncludedItems = [
+  ...new Set([
+    ...includedItems,
+    ...diasporaIncludedItems,
+  ]),
+];
 
-    if (serviceCount !== includedItems.length) {
-      throw new Error(
-        "One or more selected catalogue services are unavailable"
-      );
-    }
-  }
+const serviceCount = await Service.countDocuments({
+  key: { $in: allIncludedItems },
+  active: true,
+});
+
+if (serviceCount !== allIncludedItems.length) {
+  throw new Error(
+    "One or more selected catalogue services are unavailable"
+  );
+}
 
   return {
-    name: body.name,
-    description: body.description,
-    basePriceDZD,
-    extraGuestPriceDZD,
-    includedGuests,
-    diasporaBasePriceDZD,
-    diasporaExtraGuestPriceDZD,
-    includedItems,
-  };
+  name: body.name,
+  description: body.description,
+  diasporaName: body.diasporaName,
+  diasporaDescription: body.diasporaDescription,
+  basePriceDZD,
+  extraGuestPriceDZD,
+  includedGuests,
+  diasporaBasePriceDZD,
+  diasporaExtraGuestPriceDZD,
+  includedItems,
+  diasporaIncludedItems,
+};
 }
 
 export async function getSuperPacks(_req: Request, res: Response) {
