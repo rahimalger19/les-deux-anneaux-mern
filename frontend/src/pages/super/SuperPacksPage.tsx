@@ -58,21 +58,37 @@ function definitionToDraft(
     key,
     name: definition.name,
     description: definition.description,
+
+    diasporaName: definition.diasporaName ?? {
+      fr: "",
+      ar: "",
+      en: "",
+    },
+
+    diasporaDescription: definition.diasporaDescription ?? {
+      fr: "",
+      ar: "",
+      en: "",
+    },
+
     basePriceDZD: String(definition.basePriceDZD),
     extraGuestPriceDZD: String(definition.extraGuestPriceDZD),
     includedGuests: String(definition.includedGuests),
+
     diasporaBasePriceDZD:
       definition.diasporaBasePriceDZD === undefined
         ? ""
         : String(definition.diasporaBasePriceDZD),
+
     diasporaExtraGuestPriceDZD:
       definition.diasporaExtraGuestPriceDZD === undefined
         ? ""
         : String(definition.diasporaExtraGuestPriceDZD),
-    includedItems: definition.includedItems,
-    diasporaName: definition.diasporaName,
-diasporaDescription: definition.diasporaDescription,
-diasporaIncludedItems: definition.diasporaIncludedItems,
+
+    includedItems: definition.includedItems ?? [],
+
+    diasporaIncludedItems:
+      definition.diasporaIncludedItems ?? [],
   };
 }
 

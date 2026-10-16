@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import type { Request, Response } from "express";
+import { AuditLog } from "../models/AuditLog";
 import {
   Booking,
   BOOKING_STATUSES,
@@ -27,6 +28,74 @@ function getPositiveInteger(value: unknown, fallback: number, max: number) {
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export async function completeAdminBooking(req: Request, res: Response) {
+  try {
+    const bookingId = String(req.params.bookingId || "");
+
+    if (!mongoose.isValidObjectId(bookingId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Identifiant de réservation invalide.",
+      });
+    }
+
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Réservation introuvable.",
+      });
+    }
+
+    if (booking.status !== "INVOICED") {
+      return res.status(409).json({
+        success: false,
+        message: "Seule une réservation facturée peut être marquée comme terminée.",
+      });
+    }
+
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Africa/Algiers",
+    }).format(new Date());
+
+    if (booking.eventDate > today) {
+      return res.status(400).json({
+        success: false,
+        message: "L’événement ne peut pas être terminé avant sa date prévue.",
+      });
+    }
+
+    booking.status = "DONE";
+    await booking.save();
+
+    await AuditLog.create({
+      actorId: req.user?.id,
+      action: "BOOKING_COMPLETED",
+      entityType: "Booking",
+      entityId: booking._id.toString(),
+      metadata: {
+        eventDate: booking.eventDate,
+        previousStatus: "INVOICED",
+        status: "DONE",
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "Événement marqué comme terminé. Le client peut maintenant laisser un avis.",
+      booking,
+    });
+  } catch (error) {
+    console.error("Complete booking error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Impossible de terminer la réservation.",
+    });
+  }
 }
 
 export async function getAdminBookings(req: Request, res: Response) {

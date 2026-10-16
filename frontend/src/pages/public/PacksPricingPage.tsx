@@ -164,17 +164,31 @@ export default function PacksPricingPage() {
 
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {packs.map((pack) => {
-            const basePrice =
-              pricingMarket === "DIASPORA"
-                ? pack.diasporaBasePriceDZD
-                : pack.basePriceDZD;
+            const isDiaspora = pricingMarket === "DIASPORA";
 
-            const extraGuestPrice =
-              pricingMarket === "DIASPORA"
-                ? pack.diasporaExtraGuestPriceDZD
-                : pack.extraGuestPriceDZD;
+const basePrice = isDiaspora
+  ? pack.diasporaBasePriceDZD
+  : pack.basePriceDZD;
 
-            const selected = selectedPackKey === pack.key;
+const extraGuestPrice = isDiaspora
+  ? pack.diasporaExtraGuestPriceDZD
+  : pack.extraGuestPriceDZD;
+
+const displayName =
+  isDiaspora && pack.diasporaName
+    ? pack.diasporaName[locale]
+    : pack.name[locale];
+
+const displayDescription =
+  isDiaspora && pack.diasporaDescription
+    ? pack.diasporaDescription[locale]
+    : pack.description[locale];
+
+const displayIncludedItems = isDiaspora
+  ? pack.diasporaIncludedItems ?? []
+  : pack.includedItems;
+
+const selected = selectedPackKey === pack.key;
 
             return (
               <article
@@ -184,11 +198,11 @@ export default function PacksPricingPage() {
                 }`}
               >
                 <h2 className="font-serif text-2xl text-gold">
-                  {pack.name[locale]}
+                  {displayName}
                 </h2>
 
                 <p className="mt-3 text-foreground/70">
-                  {pack.description[locale]}
+                  {displayDescription}
                 </p>
 
                 {basePrice !== undefined ? (
@@ -211,9 +225,9 @@ export default function PacksPricingPage() {
                 )}
 
                 <ul className="mt-6 space-y-2 text-sm text-foreground/75">
-                  {pack.includedItems.map((item) => (
-                    <li key={item}>✓ {item}</li>
-                  ))}
+                  {displayIncludedItems.map((item) => (
+  <li key={item}>✓ {item}</li>
+))}
                 </ul>
 
                 <button

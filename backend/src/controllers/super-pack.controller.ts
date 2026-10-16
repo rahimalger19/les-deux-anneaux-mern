@@ -78,65 +78,101 @@ async function validateDefinition(body: Record<string, unknown>) {
       ? undefined
       : Number(body.diasporaExtraGuestPriceDZD);
 
+  const diasporaName = validLocalizedText(body.diasporaName)
+    ? body.diasporaName
+    : undefined;
+
+  const diasporaDescription = validLocalizedText(
+    body.diasporaDescription
+  )
+    ? body.diasporaDescription
+    : undefined;
+
   const includedItems = cleanItems(body.includedItems);
   const diasporaIncludedItems = cleanItems(
-  body.diasporaIncludedItems
-);
+    body.diasporaIncludedItems
+  );
+
+  const hasAnyDiasporaValue =
+    diasporaName !== undefined ||
+    diasporaDescription !== undefined ||
+    diasporaBasePriceDZD !== undefined ||
+    diasporaExtraGuestPriceDZD !== undefined ||
+    diasporaIncludedItems.length > 0;
+
+  const hasCompleteDiasporaDefinition =
+    diasporaName !== undefined &&
+    diasporaDescription !== undefined &&
+    diasporaBasePriceDZD !== undefined &&
+    diasporaExtraGuestPriceDZD !== undefined &&
+    diasporaIncludedItems.length > 0;
+
   if (
     !validLocalizedText(body.name) ||
     !validLocalizedText(body.description) ||
-    !validLocalizedText(body.diasporaName) ||
-    !validLocalizedText(body.diasporaDescription) ||
-    diasporaBasePriceDZD === undefined ||
-    diasporaExtraGuestPriceDZD === undefined ||
-    diasporaIncludedItems.length === 0 ||
     !Number.isFinite(basePriceDZD) ||
     basePriceDZD < 0 ||
     !Number.isFinite(extraGuestPriceDZD) ||
     extraGuestPriceDZD < 0 ||
     !Number.isInteger(includedGuests) ||
-    includedGuests < 0 ||
-    (diasporaBasePriceDZD !== undefined &&
-      (!Number.isFinite(diasporaBasePriceDZD) ||
-        diasporaBasePriceDZD < 0)) ||
-    (diasporaExtraGuestPriceDZD !== undefined &&
-      (!Number.isFinite(diasporaExtraGuestPriceDZD) ||
-        diasporaExtraGuestPriceDZD < 0))
+    includedGuests < 0
   ) {
     throw new Error("Invalid pack information");
   }
 
+  if (
+    diasporaBasePriceDZD !== undefined &&
+    (!Number.isFinite(diasporaBasePriceDZD) ||
+      diasporaBasePriceDZD < 0)
+  ) {
+    throw new Error("Invalid Diaspora base price");
+  }
+
+  if (
+    diasporaExtraGuestPriceDZD !== undefined &&
+    (!Number.isFinite(diasporaExtraGuestPriceDZD) ||
+      diasporaExtraGuestPriceDZD < 0)
+  ) {
+    throw new Error("Invalid Diaspora extra guest price");
+  }
+
+  if (hasAnyDiasporaValue && !hasCompleteDiasporaDefinition) {
+    throw new Error(
+      "Diaspora name, description, prices and included services must all be provided"
+    );
+  }
+
   const allIncludedItems = [
-  ...new Set([
-    ...includedItems,
-    ...diasporaIncludedItems,
-  ]),
-];
+    ...new Set([
+      ...includedItems,
+      ...diasporaIncludedItems,
+    ]),
+  ];
 
-const serviceCount = await Service.countDocuments({
-  key: { $in: allIncludedItems },
-  active: true,
-});
+  const serviceCount = await Service.countDocuments({
+    key: { $in: allIncludedItems },
+    active: true,
+  });
 
-if (serviceCount !== allIncludedItems.length) {
-  throw new Error(
-    "One or more selected catalogue services are unavailable"
-  );
-}
+  if (serviceCount !== allIncludedItems.length) {
+    throw new Error(
+      "One or more selected catalogue services are unavailable"
+    );
+  }
 
   return {
-  name: body.name,
-  description: body.description,
-  diasporaName: body.diasporaName,
-  diasporaDescription: body.diasporaDescription,
-  basePriceDZD,
-  extraGuestPriceDZD,
-  includedGuests,
-  diasporaBasePriceDZD,
-  diasporaExtraGuestPriceDZD,
-  includedItems,
-  diasporaIncludedItems,
-};
+    name: body.name,
+    description: body.description,
+    basePriceDZD,
+    extraGuestPriceDZD,
+    includedGuests,
+    diasporaName,
+    diasporaDescription,
+    diasporaBasePriceDZD,
+    diasporaExtraGuestPriceDZD,
+    includedItems,
+    diasporaIncludedItems,
+  };
 }
 
 export async function getSuperPacks(_req: Request, res: Response) {

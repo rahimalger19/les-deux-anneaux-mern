@@ -160,3 +160,11 @@ export async function sendAdminProForma(
 
   return response.data;
 }
+
+export async function completeAdminBooking(bookingId: string) {
+  const response = await api.patch(
+    `/admin/bookings/${bookingId}/complete`
+  );
+
+  return response.data;
+}

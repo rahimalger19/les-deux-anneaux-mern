@@ -285,11 +285,12 @@ export async function createMyReview(data: {
   formData.append("rating", String(data.rating));
   formData.append("message", data.message);
 
-  data.photos.forEach((photo) => {
+  data.photos.slice(0, 5).forEach((photo) => {
     formData.append("photos", photo);
   });
 
   const response = await api.post("/reviews/my", formData);
+
   return response.data;
 }
 

@@ -13,8 +13,11 @@ export interface ICustomPackTemplate {
   includedGuests: number;
   basePriceDZD: number;
   extraGuestPriceDZD: number;
+  diasporaName?: LocalizedText;
+  diasporaDescription?: LocalizedText;
   diasporaBasePriceDZD?: number;
   diasporaExtraGuestPriceDZD?: number;
+  diasporaIncludedItems: string[];
   active: boolean;
   createdBy?: mongoose.Types.ObjectId;
   createdAt?: Date;
@@ -38,9 +41,33 @@ const customPackTemplateSchema = new Schema<ICustomPackTemplate>(
     includedGuests: { type: Number, required: true, min: 0 },
     basePriceDZD: { type: Number, required: true, min: 0 },
     extraGuestPriceDZD: { type: Number, required: true, min: 0 },
-    diasporaBasePriceDZD: { type: Number, min: 0 },
-    diasporaExtraGuestPriceDZD: { type: Number, min: 0 },
-    active: { type: Boolean, default: true },
+        diasporaName: {
+      type: localizedTextSchema,
+    },
+
+    diasporaDescription: {
+      type: localizedTextSchema,
+    },
+
+    diasporaBasePriceDZD: {
+      type: Number,
+      min: 0,
+    },
+
+    diasporaExtraGuestPriceDZD: {
+      type: Number,
+      min: 0,
+    },
+
+    diasporaIncludedItems: {
+      type: [String],
+      default: [],
+    },
+
+    active: {
+      type: Boolean,
+      default: true,
+    },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

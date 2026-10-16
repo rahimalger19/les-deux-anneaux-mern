@@ -8,6 +8,7 @@ import {
   type AdminBookingDetails,
   type AssignableAgent,
 } from "../../services/admin-booking.service";
+import { completeAdminBooking } from "../../services/admin-booking.service";
 
 const slots = [
   { value: "AFTERNOON", label: "Après-midi" },
@@ -175,6 +176,46 @@ export default function AdminBookingDetailsPage() {
       setLoading(false);
     }
   }
+   
+  async function handleCompleteBooking() {
+  if (!booking) {
+    return;
+  }
+
+  if (
+    !window.confirm(
+      "Confirmer que l’événement est terminé ? Le client pourra ensuite publier un avis."
+    )
+  ) {
+    return;
+  }
+
+  const bookingId = booking.id;
+
+  try {
+    setLoading(true);
+
+    const result = await completeAdminBooking(bookingId);
+
+    setMessage(result.message);
+
+    setBooking((current) =>
+      current
+        ? {
+            ...current,
+            status: "DONE",
+          }
+        : null
+    );
+  } catch (error: any) {
+    setMessage(
+      error.response?.data?.message ||
+        "Impossible de terminer la réservation."
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
   if (!booking && message === "Chargement du dossier...") {
     return <main className="p-10">Chargement du dossier...</main>;
@@ -193,6 +234,7 @@ export default function AdminBookingDetailsPage() {
 
 const slotLocked =
   Boolean(booking.proForma) || booking.status !== "HELD";
+
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
@@ -468,6 +510,16 @@ const slotLocked =
             </button>
           </div>
         </section>
+        {booking.status === "INVOICED" ? (
+  <button
+    type="button"
+    onClick={() => void handleCompleteBooking()}
+    disabled={loading}
+    className="rounded-xl bg-green-700 px-5 py-3 font-semibold text-white disabled:opacity-50"
+  >
+    Marquer l’événement comme terminé
+  </button>
+) : null}
       </div>
     </main>
   );

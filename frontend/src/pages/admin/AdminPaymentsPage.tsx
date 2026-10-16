@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  getAdminPaymentProof,
   getPendingProofPayments,
   rejectPayment,
   validatePayment,
@@ -72,7 +73,33 @@ export default function AdminPaymentsPage() {
       setProcessingId(null);
     }
   }
+  
+  async function handleOpenProof(paymentId: string) {
+  try {
+    const proofWindow = window.open("", "_blank");
 
+    if (!proofWindow) {
+      window.alert(
+        "Veuillez autoriser les fenêtres contextuelles pour ouvrir la preuve."
+      );
+      return;
+    }
+
+    const response = await getAdminPaymentProof(paymentId);
+const proofUrl = URL.createObjectURL(response.data);
+
+    proofWindow.location.href = proofUrl;
+
+    window.setTimeout(() => {
+      URL.revokeObjectURL(proofUrl);
+    }, 60_000);
+  } catch (error: any) {
+    window.alert(
+      error.response?.data?.message ||
+        "Impossible d’ouvrir la preuve de paiement."
+    );
+  }
+}
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
       <div className="mx-auto max-w-6xl">
@@ -132,11 +159,20 @@ export default function AdminPaymentsPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm text-foreground/60">Proof file</p>
-                    <p className="font-semibold">
-                      {payment.proofFileName || "No file name"}
-                    </p>
-                  </div>
+  <p className="text-sm text-foreground/60">Proof file</p>
+
+  <p className="font-semibold">
+    {payment.proofFileName || "No file name"}
+  </p>
+
+  <button
+    type="button"
+    onClick={() => void handleOpenProof(payment.id)}
+    className="mt-3 rounded-xl border border-foreground/20 px-4 py-2 text-sm font-semibold hover:border-gold hover:text-gold"
+  >
+    Ouvrir la preuve
+  </button>
+</div>
                 </div>
 
                 <div className="mt-6 flex flex-wrap gap-3">

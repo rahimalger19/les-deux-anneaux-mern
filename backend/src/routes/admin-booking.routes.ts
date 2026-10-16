@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getAdminBookings,
   getAssignableAgents,
+  completeAdminBooking,
 } from "../controllers/admin-booking.controller";
 import {
   getAdminBookingDetails,
@@ -23,5 +24,11 @@ router.get("/agents", getAssignableAgents);
 router.get("/:bookingId", getAdminBookingDetails);
 router.patch("/:bookingId", updateAdminBooking);
 router.post("/:bookingId/proforma/send", sendAdminProForma);
+router.patch(
+  "/:bookingId/complete",
+  requireAuth,
+  requireRoles("RECEPTION", "MANAGER"),
+  completeAdminBooking
+);
 
 export default router;

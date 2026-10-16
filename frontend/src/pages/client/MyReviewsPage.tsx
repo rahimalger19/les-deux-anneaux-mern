@@ -116,11 +116,13 @@ export default function MyReviewsPage() {
               accept=".jpg,.jpeg,.png"
               multiple
               onChange={(event) =>
-                setPhotos(Array.from(event.target.files || []))
-              }
+  setPhotos(Array.from(event.target.files || []).slice(0, 5))
+}
               className="mt-5 block w-full rounded-xl border border-foreground/20 p-3"
             />
-
+           <p className="mt-2 text-sm text-foreground/60">
+  JPG ou PNG, maximum 5 photos.
+</p>
             <button
               type="submit"
               className="mt-5 rounded-xl bg-gold px-6 py-3 font-semibold text-black"
