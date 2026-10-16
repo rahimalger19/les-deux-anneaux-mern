@@ -78,7 +78,7 @@ export async function createProFormaEmailLink(
         sentAt: new Date(),
       },
     },
-    { new: true }
+    { returnDocument: "after" }
   );
 
   if (!proForma) {

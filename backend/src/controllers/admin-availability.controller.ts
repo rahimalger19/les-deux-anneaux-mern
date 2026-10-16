@@ -220,7 +220,7 @@ export async function createAvailabilityBlocks(
         },
         {
           upsert: true,
-          new: true,
+          returnDocument: "after",
           setDefaultsOnInsert: true,
           runValidators: true,
         }
@@ -258,7 +258,7 @@ export async function deleteAvailabilityBlock(
     const block = await AvailabilityBlock.findOneAndUpdate(
       { _id: blockId, active: true },
       { $set: { active: false } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!block) {

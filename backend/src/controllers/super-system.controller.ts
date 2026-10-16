@@ -151,7 +151,7 @@ export async function updateFeatureFlag(req: Request, res: Response) {
           updatedBy: req.user?.id,
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!flag) {
@@ -227,7 +227,7 @@ export async function updateLegalDocument(req: Request, res: Response) {
         },
       },
       {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         setDefaultsOnInsert: true,
       }

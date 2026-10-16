@@ -117,7 +117,7 @@ export async function likeReview(req: Request, res: Response) {
         $inc: { likeCount: 1 },
       },
       {
-        new: true,
+        returnDocument: "after",
       }
     ).select("likeCount");
 

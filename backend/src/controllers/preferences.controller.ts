@@ -65,7 +65,7 @@ export async function updateMyPreferences(req: Request, res: Response) {
           smsNotifications,
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     ).select(
       "language currency emailNotifications smsNotifications"
     );

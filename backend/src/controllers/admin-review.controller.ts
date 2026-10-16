@@ -126,7 +126,7 @@ export async function updateAdminReview(req: Request, res: Response) {
     const review = await Review.findByIdAndUpdate(
       reviewId,
       update,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!review) {

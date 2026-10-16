@@ -321,7 +321,7 @@ export async function sendSuperNewsletterCampaign(
             },
           },
           {
-            new: true,
+            returnDocument: "after",
             upsert: true,
             setDefaultsOnInsert: true,
           }
@@ -345,7 +345,7 @@ export async function sendSuperNewsletterCampaign(
             },
           },
           {
-            new: true,
+            returnDocument: "after",
             upsert: true,
             setDefaultsOnInsert: true,
           }

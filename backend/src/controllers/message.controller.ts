@@ -175,7 +175,7 @@ export async function markMyNotificationRead(req: Request, res: Response) {
         userId: req.user?.id,
       },
       { $set: { readAt: new Date() } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!notification) {

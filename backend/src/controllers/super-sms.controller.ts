@@ -11,7 +11,7 @@ async function getConfiguration() {
     { key: "default" },
     { $setOnInsert: { key: "default" } },
     {
-      new: true,
+      returnDocument: "after",
       upsert: true,
       setDefaultsOnInsert: true,
     }
@@ -86,7 +86,7 @@ export async function updateSuperSmsConfiguration(
           },
         },
         {
-          new: true,
+          returnDocument: "after",
           upsert: true,
           setDefaultsOnInsert: true,
         }

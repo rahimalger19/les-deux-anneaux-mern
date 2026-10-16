@@ -46,7 +46,7 @@ if (
         },
       },
       {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         setDefaultsOnInsert: true,
       }
@@ -105,7 +105,7 @@ export async function confirmNewsletter(req: Request, res: Response) {
           confirmationToken: 1,
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!subscriber) {
@@ -149,7 +149,7 @@ export async function unsubscribeNewsletter(req: Request, res: Response) {
           unsubscribedAt: new Date(),
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!subscriber) {

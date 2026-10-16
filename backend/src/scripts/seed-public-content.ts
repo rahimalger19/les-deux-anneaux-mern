@@ -238,7 +238,7 @@ async function seedPublicContent() {
     await VenueInfo.findOneAndUpdate(
       {},
       { $set: venue },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     );
 
     for (const service of services) {

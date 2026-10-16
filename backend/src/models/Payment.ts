@@ -39,7 +39,6 @@ const paymentSchema = new Schema<IPayment>(
       type: Schema.Types.ObjectId,
       ref: "Booking",
       required: true,
-      index: true,
     },
     localPayerId: {
       type: Schema.Types.ObjectId,

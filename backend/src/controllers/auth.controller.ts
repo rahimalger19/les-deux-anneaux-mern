@@ -728,7 +728,7 @@ export async function resetPassword(req: Request, res: Response) {
         usedAt: { $exists: false },
       },
       { $set: { usedAt: new Date() } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!claimedToken) {

@@ -152,7 +152,7 @@ export async function updatePricingRule(req: Request, res: Response) {
     const rule = await PricingRule.findByIdAndUpdate(
       ruleId,
       { $set: { active: req.body.active } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!rule) {
@@ -259,7 +259,7 @@ export async function updatePricingSeason(req: Request, res: Response) {
     const season = await PricingSeason.findByIdAndUpdate(
       seasonId,
       { $set: { active: req.body.active } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!season) {
@@ -352,7 +352,7 @@ export async function updateEventTypeCapacity(req: Request, res: Response) {
           allowedSlots,
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!eventType) {

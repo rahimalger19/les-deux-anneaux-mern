@@ -441,7 +441,7 @@ export async function removeAdminGalleryItem(
     const item = await GalleryItem.findByIdAndUpdate(
       itemId,
       { $set: { active: false } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!item) {

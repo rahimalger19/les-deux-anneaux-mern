@@ -314,7 +314,7 @@ const entries: ParsedRunSheetEntry[] = rawEntries.map((entry) => {
       },
       {
         upsert: true,
-        new: true,
+        returnDocument: "after",
         setDefaultsOnInsert: true,
         runValidators: true,
       }

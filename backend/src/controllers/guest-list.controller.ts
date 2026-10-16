@@ -204,7 +204,7 @@ export async function importMyGuestList(req: Request, res: Response) {
       },
       {
         upsert: true,
-        new: true,
+        returnDocument: "after",
       }
     );
 

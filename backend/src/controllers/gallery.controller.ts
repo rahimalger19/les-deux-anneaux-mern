@@ -173,7 +173,7 @@ export async function likeGalleryItem(req: Request, res: Response) {
       $inc: { likeCount: -1 },
     },
     {
-      new: true,
+      returnDocument: "after",
     }
   ).select("likeCount");
 
@@ -194,7 +194,7 @@ export async function likeGalleryItem(req: Request, res: Response) {
     const updatedItem = await GalleryItem.findOneAndUpdate(
       { _id: item._id, active: true },
       { $inc: { likeCount: 1 } },
-      { new: true }
+      { returnDocument: "after" }
     ).select("likeCount");
 
     if (!updatedItem) {

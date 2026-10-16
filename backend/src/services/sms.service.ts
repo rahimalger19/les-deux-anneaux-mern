@@ -28,7 +28,7 @@ async function getConfiguration() {
     { key: "default" },
     { $setOnInsert: { key: "default" } },
     {
-      new: true,
+      returnDocument: "after",
       upsert: true,
       setDefaultsOnInsert: true,
     }

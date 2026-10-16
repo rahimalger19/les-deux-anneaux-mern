@@ -124,7 +124,7 @@ if (typeof active !== "boolean") {
         },
       },
       {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         setDefaultsOnInsert: true,
       }
@@ -189,7 +189,7 @@ export async function saveSuperDiasporaCountry(
         },
       },
       {
-        new: true,
+        returnDocument: "after",
         upsert: true,
         setDefaultsOnInsert: true,
       }

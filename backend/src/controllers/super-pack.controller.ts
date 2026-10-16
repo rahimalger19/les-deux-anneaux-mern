@@ -264,7 +264,7 @@ export async function updateSuperPack(req: Request, res: Response) {
     const pack = await packModel.findOneAndUpdate(
       { key },
       { $set: values },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!pack) {
@@ -304,7 +304,7 @@ export async function setSuperPackActive(req: Request, res: Response) {
     const pack = await packModel.findOneAndUpdate(
       { key },
       { $set: { active: req.body.active } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!pack) {
@@ -384,7 +384,7 @@ export async function updateCustomPackTemplate(
     const template = await templateModel.findByIdAndUpdate(
       templateId,
       { $set: values },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!template) {
@@ -433,7 +433,7 @@ export async function setCustomPackTemplateActive(
     const template = await templateModel.findByIdAndUpdate(
       templateId,
       { $set: { active: req.body.active } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!template) {

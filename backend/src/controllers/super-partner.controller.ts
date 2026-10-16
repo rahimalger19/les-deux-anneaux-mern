@@ -164,7 +164,7 @@ export async function updateSuperPartner(
     const partner = await partnerModel.findByIdAndUpdate(
       partnerId,
       update,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!partner) {
@@ -217,7 +217,7 @@ export async function setSuperPartnerActive(
     const partner = await partnerModel.findByIdAndUpdate(
       partnerId,
       { $set: { active: req.body.active } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!partner) {

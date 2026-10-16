@@ -24,7 +24,7 @@ export async function trackPartnerClick(req: Request, res: Response) {
     const partner = await Partner.findByIdAndUpdate(
       req.params.partnerId,
       { $inc: { clickCount: 1 } },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!partner) {

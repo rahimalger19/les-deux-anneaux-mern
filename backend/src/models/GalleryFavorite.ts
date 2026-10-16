@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 export interface IGalleryFavorite {
   userId: mongoose.Types.ObjectId;
   galleryItemId: mongoose.Types.ObjectId;
-  collection: string;
+  collectionName: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -21,7 +21,7 @@ const galleryFavoriteSchema = new Schema<IGalleryFavorite>(
       ref: "GalleryItem",
       required: true,
     },
-    collection: {
+    collectionName: {
       type: String,
       required: true,
       trim: true,
@@ -33,7 +33,7 @@ const galleryFavoriteSchema = new Schema<IGalleryFavorite>(
 );
 
 galleryFavoriteSchema.index(
-  { userId: 1, galleryItemId: 1, collection: 1 },
+  { userId: 1, galleryItemId: 1, collectionName: 1 },
   { unique: true }
 );
 

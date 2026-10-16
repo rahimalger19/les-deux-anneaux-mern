@@ -129,7 +129,7 @@ export async function processQueuedSystemJobs() {
         },
       },
       {
-        new: true,
+       returnDocument: "after",
         sort: { createdAt: 1 },
       }
     );

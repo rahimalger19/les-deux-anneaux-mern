@@ -104,7 +104,7 @@ export async function removeMyLocalPayer(req: Request, res: Response) {
       {
         $set: { active: false },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!payer) {

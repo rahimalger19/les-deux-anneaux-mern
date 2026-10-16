@@ -8,7 +8,7 @@ async function generateDocumentNumber(type: "PRO" | "FACT") {
     { type, year },
     { $inc: { sequence: 1 } },
     {
-      new: true,
+      returnDocument: "after",
       upsert: true,
       setDefaultsOnInsert: true,
     }

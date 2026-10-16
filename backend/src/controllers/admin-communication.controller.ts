@@ -229,7 +229,7 @@ export async function updateContactMessageStatus(
     const message = await ContactMessage.findByIdAndUpdate(
       messageId,
       update,
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!message) {
