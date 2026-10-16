@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -5,25 +6,38 @@
 :root {
   --background: #f7f3ea;
   --foreground: #0a0a0b;
+  --surface: #f7f3ea;
+  --field: #f7f3ea;
 
   --black: #0a0a0b;
   --ivory: #f7f3ea;
   --gold: #c6a15b;
   --espresso: #2a241c;
+
+  --font-ui: "Inter", Arial, sans-serif;
+  --font-display: "Playfair Display", Georgia, serif;
 }
 
 :root.dark {
   --background: #0a0a0b;
   --foreground: #f7f3ea;
+  --surface: #2a241c;
+  --field: #0a0a0b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-field: var(--field);
+
   --color-black: var(--black);
   --color-ivory: var(--ivory);
   --color-gold: var(--gold);
   --color-espresso: var(--espresso);
+
+  --font-sans: var(--font-ui);
+  --font-serif: var(--font-display);
 }
 
 * {
@@ -39,11 +53,13 @@ body {
   min-width: 320px;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ui);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }

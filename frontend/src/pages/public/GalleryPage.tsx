@@ -109,80 +109,97 @@ export default function GalleryPage() {
     }
   }
 
-  return (
-    <main className="mx-auto max-w-7xl px-6 py-16">
+  
+return (
+  <main className="min-h-screen bg-background text-foreground">
+    <div className="mx-auto max-w-7xl px-6 py-16">
+      {/* Page heading */}
       <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
         {t("gallery.eyebrow")}
       </p>
 
-      <h1 className="mt-3 font-serif text-4xl">
+      <h1 className="mt-3 font-serif text-4xl text-foreground">
         {t("gallery.title")}
       </h1>
 
-      {/* Filtres par type d'événement */}
-      <div className="mt-8 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => void selectFilter("")}
-          className={
-            selectedEventType === ""
-              ? "rounded-full bg-black px-5 py-3 font-semibold text-ivory"
-              : "rounded-full border border-black/20 px-5 py-3"
-          }
-        >
-          {t("gallery.all")}
-        </button>
+      <div className="mt-5 h-px w-16 bg-gold" />
 
-        {eventTypes.map((eventType) => (
-          <button
-            key={eventType.key}
-            type="button"
-            onClick={() => void selectFilter(eventType.key)}
-            className={
-              selectedEventType === eventType.key
-                ? "rounded-full bg-black px-5 py-3 font-semibold text-ivory"
-                : "rounded-full border border-black/20 px-5 py-3"
-            }
-          >
-            {eventType.name[locale]}
-          </button>
-        ))}
-      </div>
-
-      {/* Filtres par album */}
-      {albums.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-3">
+      {/* Filters by event type */}
+      <section aria-label="Filtres par type d'événement">
+        <div className="mt-8 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => void selectAlbum("")}
+            onClick={() => void selectFilter("")}
             className={
-              selectedAlbum === ""
-                ? "rounded-full bg-black px-5 py-3 font-semibold text-ivory"
-                : "rounded-full border border-black/20 px-5 py-3"
+              selectedEventType === ""
+                ? "rounded-full border border-gold bg-gold px-5 py-3 font-semibold text-black transition-colors"
+                : "rounded-full border border-foreground/20 bg-surface px-5 py-3 text-foreground transition-colors hover:border-gold hover:text-gold"
             }
           >
-            {t("gallery.allAlbums")}
+            {t("gallery.all")}
           </button>
 
-          {albums.map((album) => (
+          {eventTypes.map((eventType) => (
             <button
-              key={album.album}
+              key={eventType.key}
               type="button"
-              onClick={() => void selectAlbum(album.album)}
+              onClick={() => void selectFilter(eventType.key)}
               className={
-                selectedAlbum === album.album
-                  ? "rounded-full bg-black px-5 py-3 font-semibold text-ivory"
-                  : "rounded-full border border-black/20 px-5 py-3"
+                selectedEventType === eventType.key
+                  ? "rounded-full border border-gold bg-gold px-5 py-3 font-semibold text-black transition-colors"
+                  : "rounded-full border border-foreground/20 bg-surface px-5 py-3 text-foreground transition-colors hover:border-gold hover:text-gold"
               }
             >
-              {album.album}
+              {eventType.name[locale]}
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Filters by album */}
+      {albums.length > 0 && (
+        <section
+          aria-label="Filtres par album"
+          className="mt-5 border-b border-foreground/10 pb-6"
+        >
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground/60">
+            {t("gallery.allAlbums")}
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void selectAlbum("")}
+              className={
+                selectedAlbum === ""
+                  ? "rounded-lg bg-gold/15 px-4 py-2.5 text-sm font-semibold text-gold"
+                  : "rounded-lg px-4 py-2.5 text-sm text-foreground/75 transition-colors hover:bg-surface hover:text-gold"
+              }
+            >
+              {t("gallery.allAlbums")}
+            </button>
+
+            {albums.map((album) => (
+              <button
+                key={album.album}
+                type="button"
+                onClick={() => void selectAlbum(album.album)}
+                className={
+                  selectedAlbum === album.album
+                    ? "rounded-lg bg-gold/15 px-4 py-2.5 text-sm font-semibold text-gold"
+                    : "rounded-lg px-4 py-2.5 text-sm text-foreground/75 transition-colors hover:bg-surface hover:text-gold"
+                }
+              >
+                {album.album}
+              </button>
+            ))}
+          </div>
+        </section>
       )}
 
+      {/* Gallery content */}
       {items.length === 0 ? (
-        <p className="mt-10 rounded-xl border border-black/10 p-6 text-black/70">
+        <p className="mt-10 rounded-xl border border-foreground/15 bg-surface p-6 text-foreground/75">
           {t("gallery.empty")}
         </p>
       ) : (
@@ -190,88 +207,114 @@ export default function GalleryPage() {
           {items.map((item) => (
             <article
               key={item._id}
-              className="overflow-hidden rounded-2xl border border-black/10 bg-white"
+              className="group overflow-hidden rounded-2xl border border-foreground/10 bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-gold/50"
             >
+              {/* Gallery image */}
               <button
                 type="button"
                 onClick={() => setSelected(item)}
-                className="block w-full"
+                className="block w-full overflow-hidden"
                 aria-label={`${t("gallery.open")} ${item.title[locale]}`}
               >
                 <img
                   src={item.imageUrl}
                   alt={item.title[locale]}
-                  className="h-72 w-full object-cover"
+                  loading="lazy"
+                  className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] sm:h-72"
                 />
               </button>
 
+              {/* Card details */}
               <div className="p-5">
-                <p className="text-sm text-gold">{item.album}</p>
+                <p className="text-sm font-medium text-gold">
+                  {item.album}
+                </p>
 
-                <h2 className="mt-1 font-serif text-xl">
+                <h2 className="mt-2 font-serif text-xl text-foreground">
                   {item.title[locale]}
                 </h2>
 
-                <button
-                  type="button"
-                  onClick={() => void handleLike(item._id)}
-                  className="mt-4 rounded-full border border-black/15 px-4 py-2 text-sm"
-                >
-                  {likedIds.has(item._id) ? "♥" : "♡"} {item.likeCount}
-                </button>
-
-                {user && (
+                <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     type="button"
-                    onClick={() => void handleFavorite(item._id)}
-                    className="ml-3 mt-4 rounded-full border border-black/15 px-4 py-2 text-sm"
+                    onClick={() => void handleLike(item._id)}
+                    aria-pressed={likedIds.has(item._id)}
+                    className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                      likedIds.has(item._id)
+                        ? "border-gold bg-gold/10 text-gold"
+                        : "border-foreground/20 text-foreground hover:border-gold hover:text-gold"
+                    }`}
                   >
-                    {t("gallery.addFavorite")}
+                    {likedIds.has(item._id) ? "♥" : "♡"}{" "}
+                    {item.likeCount}
                   </button>
-                )}
+
+                  {user && (
+                    <button
+                      type="button"
+                      onClick={() => void handleFavorite(item._id)}
+                      className="rounded-full border border-foreground/20 px-4 py-2 text-sm text-foreground transition-colors hover:border-gold hover:text-gold"
+                    >
+                      {t("gallery.addFavorite")}
+                    </button>
+                  )}
+                </div>
               </div>
             </article>
           ))}
         </div>
       )}
 
+      {/* Image modal */}
       {selected ? (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-6"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-4 backdrop-blur-sm sm:p-6"
           role="dialog"
           aria-modal="true"
+          aria-label={selected.title[locale]}
+          onClick={() => setSelected(null)}
         >
           <button
             type="button"
             onClick={() => setSelected(null)}
-            className="absolute right-6 top-6 rounded-full bg-white px-5 py-3 font-semibold text-black"
+            className="absolute right-5 top-5 rounded-full border border-white/20 bg-espresso px-5 py-3 font-semibold text-ivory transition-colors hover:border-gold hover:text-gold sm:right-6 sm:top-6"
           >
-            {t("gallery.close")}
+            {t("gallery.close")} ✕
           </button>
 
-          <div className="max-h-full max-w-5xl">
+          <div
+            className="max-h-full w-full max-w-5xl overflow-y-auto rounded-2xl border border-white/10 bg-surface p-4 sm:p-5"
+            onClick={(event) => event.stopPropagation()}
+          >
             <img
               src={selected.imageUrl}
               alt={selected.title[locale]}
-              className="max-h-[80vh] w-auto rounded-2xl"
+              className="mx-auto max-h-[70vh] w-auto max-w-full rounded-xl object-contain"
             />
 
-            <div className="mt-4 flex items-center justify-between text-ivory">
-              <p className="font-serif text-xl">
-                {selected.title[locale]}
-              </p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm text-gold">{selected.album}</p>
+
+                <h2 className="mt-1 font-serif text-xl text-foreground">
+                  {selected.title[locale]}
+                </h2>
+              </div>
 
               <button
                 type="button"
                 onClick={() => void handleLike(selected._id)}
-                className="rounded-full border border-ivory/40 px-4 py-2"
+                aria-pressed={likedIds.has(selected._id)}
+                className="rounded-full border border-foreground/20 px-4 py-2 text-foreground transition-colors hover:border-gold hover:text-gold"
               >
-                {likedIds.has(selected._id) ? "♥" : "♡"} {selected.likeCount}
+                {likedIds.has(selected._id) ? "♥" : "♡"}{" "}
+                {selected.likeCount}
               </button>
             </div>
           </div>
         </div>
       ) : null}
-    </main>
-  );
+    </div>
+  </main>
+);
 }

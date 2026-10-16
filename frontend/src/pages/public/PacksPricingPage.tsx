@@ -190,242 +190,246 @@ const displayIncludedItems = isDiaspora
 
 const selected = selectedPackKey === pack.key;
 
-            return (
-              <article
-                key={pack.key}
-                className={`rounded-2xl border bg-ivory p-6 dark:bg-black ${
-                  selected ? "border-gold" : "border-foreground/15"
-                }`}
-              >
-                <h2 className="font-serif text-2xl text-gold">
-                  {displayName}
-                </h2>
+             return (
+            <article
+              key={pack.key}
+              className={`rounded-2xl border bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-gold/50 ${
+                selected ? "border-gold ring-1 ring-gold/30" : "border-foreground/10"
+              }`}
+            >
+              <h2 className="font-serif text-2xl text-gold">
+                {displayName}
+              </h2>
 
-                <p className="mt-3 text-foreground/70">
-                  {displayDescription}
-                </p>
+              <p className="mt-3 leading-relaxed text-foreground/70">
+                {displayDescription}
+              </p>
 
-                {basePrice !== undefined ? (
-                  <>
-                    <p className="mt-6 text-3xl font-bold">
-                      {formatPrice(basePrice)}
-                    </p>
-
-                    {extraGuestPrice !== undefined && (
-                      <p className="mt-1 text-sm text-foreground/60">
-                        {t("pricing.extraGuest")}:{" "}
-                        {formatPrice(extraGuestPrice)}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="mt-6 text-sm text-red-700">
-                    {t("pricing.unavailable")}
+              {basePrice !== undefined ? (
+                <>
+                  <p className="mt-6 text-3xl font-bold text-foreground">
+                    {formatPrice(basePrice)}
                   </p>
-                )}
 
-                <ul className="mt-6 space-y-2 text-sm text-foreground/75">
-                  {displayIncludedItems.map((item) => (
-  <li key={item}>✓ {item}</li>
-))}
-                </ul>
+                  {extraGuestPrice !== undefined && (
+                    <p className="mt-1 text-sm text-foreground/60">
+                      {t("pricing.extraGuest")}:{" "}
+                      {formatPrice(extraGuestPrice)}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="mt-6 text-sm text-red-600 dark:text-red-300">
+                  {t("pricing.unavailable")}
+                </p>
+              )}
 
-                <button
-                  type="button"
-                  onClick={() => choosePack(pack.key)}
-                  className={
-                    selected
-                      ? "mt-6 rounded-full border border-gold px-5 py-3 font-semibold text-gold"
-                      : "mt-6 rounded-full bg-gold px-5 py-3 font-semibold text-black"
-                  }
-                >
-                  {selected
-                    ? t("pricing.selected")
-                    : t("pricing.choose")}
-                </button>
-              </article>
-            );
-          })}
+              <ul className="mt-6 space-y-3 text-sm text-foreground/75">
+                {displayIncludedItems.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="font-bold text-gold">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                type="button"
+                onClick={() => choosePack(pack.key)}
+                className={
+                  selected
+                    ? "mt-6 rounded-full border border-gold bg-gold/10 px-5 py-3 font-semibold text-gold transition-colors hover:bg-gold/20"
+                    : "mt-6 rounded-full bg-gold px-5 py-3 font-semibold text-black transition-colors hover:bg-gold/90"
+                }
+              >
+                {selected
+                  ? t("pricing.selected")
+                  : t("pricing.choose")}
+              </button>
+            </article>
+          );
+        })}
+      </div>
+
+      {/* Estimate form */}
+      <section className="mt-12 rounded-2xl border border-foreground/10 bg-surface p-6 sm:p-8">
+        <h2 className="font-serif text-3xl text-foreground">
+          {t("pricing.estimateTitle")}
+        </h2>
+
+        <div className="mt-6 grid gap-5 md:grid-cols-2">
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("pricing.date")}
+            </span>
+            <input
+              type="date"
+              value={eventDate}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(event) => {
+                setEventDate(event.target.value);
+                clearEstimate();
+              }}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none transition-colors focus:border-gold focus:ring-1 focus:ring-gold"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("pricing.eventType")}
+            </span>
+            <select
+              value={eventTypeKey}
+              onChange={(event) => {
+                const value = event.target.value;
+                const eventType = eventTypes.find(
+                  (item) => item.key === value
+                );
+
+                setEventTypeKey(value);
+
+                if (
+                  eventType &&
+                  !eventType.allowedSlots.includes(slot) &&
+                  eventType.allowedSlots[0]
+                ) {
+                  setSlot(eventType.allowedSlots[0]);
+                }
+
+                clearEstimate();
+              }}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+            >
+              <option value="">{t("pricing.selectEvent")}</option>
+              {eventTypes.map((eventType) => (
+                <option key={eventType.key} value={eventType.key}>
+                  {eventType.name[locale]}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("pricing.slot")}
+            </span>
+            <select
+              value={slot}
+              onChange={(event) => {
+                setSlot(event.target.value as BookingSlot);
+                clearEstimate();
+              }}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+            >
+              {slots.map((item) => {
+                const allowed =
+                  !selectedEventType ||
+                  selectedEventType.allowedSlots.includes(item);
+
+                return (
+                  <option key={item} value={item} disabled={!allowed}>
+                    {getSlotLabel(item)}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("nav.pricing")}
+            </span>
+            <select
+              value={selectedPackKey}
+              onChange={(event) => choosePack(event.target.value)}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+            >
+              <option value="">{t("pricing.selectPack")}</option>
+              {packs.map((pack) => (
+                <option key={pack.key} value={pack.key}>
+                  {pack.name[locale]}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("pricing.womenGuests")}
+            </span>
+            <input
+              type="number"
+              min="0"
+              value={womenGuests}
+              onChange={(event) => {
+                setWomenGuests(Number(event.target.value));
+                clearEstimate();
+              }}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+            />
+          </label>
+
+          <label>
+            <span className="text-sm font-semibold text-foreground">
+              {t("pricing.menGuests")}
+            </span>
+            <input
+              type="number"
+              min="0"
+              value={menGuests}
+              onChange={(event) => {
+                setMenGuests(Number(event.target.value));
+                clearEstimate();
+              }}
+              className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+            />
+          </label>
         </div>
 
-        <section className="mt-12 rounded-2xl border border-foreground/15 p-6">
-          <h2 className="font-serif text-3xl">
-            {t("pricing.estimateTitle")}
-          </h2>
+        <button
+          type="button"
+          onClick={calculateEstimate}
+          disabled={calculating}
+          className="mt-6 rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {calculating
+            ? t("pricing.calculating")
+            : t("pricing.calculate")}
+        </button>
 
-          <div className="mt-6 grid gap-5 md:grid-cols-2">
-            <label>
-              <span className="text-sm font-semibold">
-                {t("pricing.date")}
-              </span>
-              <input
-                type="date"
-                value={eventDate}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(event) => {
-                  setEventDate(event.target.value);
-                  clearEstimate();
-                }}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              />
-            </label>
+        {message && (
+          <p className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-600 dark:text-red-300">
+            {message}
+          </p>
+        )}
 
-            <label>
-              <span className="text-sm font-semibold">
-                {t("pricing.eventType")}
-              </span>
-              <select
-                value={eventTypeKey}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  const eventType = eventTypes.find(
-                    (item) => item.key === value
-                  );
-
-                  setEventTypeKey(value);
-
-                  if (
-                    eventType &&
-                    !eventType.allowedSlots.includes(slot) &&
-                    eventType.allowedSlots[0]
-                  ) {
-                    setSlot(eventType.allowedSlots[0]);
-                  }
-
-                  clearEstimate();
-                }}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              >
-                <option value="">{t("pricing.selectEvent")}</option>
-                {eventTypes.map((eventType) => (
-                  <option key={eventType.key} value={eventType.key}>
-                    {eventType.name[locale]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              <span className="text-sm font-semibold">
-                {t("pricing.slot")}
-              </span>
-              <select
-                value={slot}
-                onChange={(event) => {
-                  setSlot(event.target.value as BookingSlot);
-                  clearEstimate();
-                }}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              >
-                {slots.map((item) => {
-                  const allowed =
-                    !selectedEventType ||
-                    selectedEventType.allowedSlots.includes(item);
-
-                  return (
-                    <option key={item} value={item} disabled={!allowed}>
-                      {getSlotLabel(item)}
-                    </option>
-                  );
-                })}
-              </select>
-            </label>
-
-            <label>
-              <span className="text-sm font-semibold">
-                {t("nav.pricing")}
-              </span>
-              <select
-                value={selectedPackKey}
-                onChange={(event) => choosePack(event.target.value)}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              >
-                <option value="">{t("pricing.selectPack")}</option>
-                {packs.map((pack) => (
-                  <option key={pack.key} value={pack.key}>
-                    {pack.name[locale]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              <span className="text-sm font-semibold">
-                {t("pricing.womenGuests")}
-              </span>
-              <input
-                type="number"
-                min="0"
-                value={womenGuests}
-                onChange={(event) => {
-                  setWomenGuests(Number(event.target.value));
-                  clearEstimate();
-                }}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              />
-            </label>
-
-            <label>
-              <span className="text-sm font-semibold">
-                {t("pricing.menGuests")}
-              </span>
-              <input
-                type="number"
-                min="0"
-                value={menGuests}
-                onChange={(event) => {
-                  setMenGuests(Number(event.target.value));
-                  clearEstimate();
-                }}
-                className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-              />
-            </label>
-          </div>
-
-          <button
-            type="button"
-            onClick={calculateEstimate}
-            disabled={calculating}
-            className="mt-6 rounded-full bg-gold px-6 py-3 font-semibold text-black"
-          >
-            {calculating
-              ? t("pricing.calculating")
-              : t("pricing.calculate")}
-          </button>
-
-          {message && (
-            <p className="mt-5 rounded-xl bg-red-100 p-4 text-red-800">
-              {message}
+        {estimate && (
+          <div className="mt-6 rounded-2xl border border-gold/50 bg-gold/10 p-6">
+            <p className="text-sm text-foreground/70">
+              {t("pricing.estimateTotal")}
             </p>
-          )}
+            <p className="mt-1 text-3xl font-bold text-foreground">
+              {formatPrice(estimate.pricing.totalDZD)}
+            </p>
 
-          {estimate && (
-            <div className="mt-6 rounded-2xl border border-gold bg-gold/10 p-6">
-              <p className="text-sm text-foreground/70">
-                {t("pricing.estimateTotal")}
-              </p>
-              <p className="mt-1 text-3xl font-bold">
-                {formatPrice(estimate.pricing.totalDZD)}
-              </p>
+            <p className="mt-4 text-sm text-foreground/70">
+              {t("pricing.deposit")} (
+              {estimate.eventType.depositPercent}%)
+            </p>
+            <p className="mt-1 text-2xl font-bold text-gold">
+              {formatPrice(estimate.pricing.depositDZD)}
+            </p>
 
-              <p className="mt-4 text-sm text-foreground/70">
-                {t("pricing.deposit")} (
-                {estimate.eventType.depositPercent}%)
-              </p>
-              <p className="mt-1 text-2xl font-bold text-gold">
-                {formatPrice(estimate.pricing.depositDZD)}
-              </p>
-
-              <Link
-                to="/reservation"
-                className="mt-6 inline-block rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
-              >
-                {t("pricing.continueBooking")}
-              </Link>
-            </div>
-          )}
-        </section>
-      </div>
-    </main>
-  );
+            <Link
+              to="/reservation"
+              className="mt-6 inline-block rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90"
+            >
+              {t("pricing.continueBooking")}
+            </Link>
+          </div>
+        )}
+      </section>
+    </div>
+  </main>
+);
 }

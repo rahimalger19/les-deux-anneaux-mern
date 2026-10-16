@@ -189,8 +189,14 @@ export async function markMyNotificationRead(notificationId: string) {
 }
 
 export type Partner = {
+  _id: string;
+  name: string;
+  category: "CATERER" | "DECOR" | "PHOTO" | "DJ" | "HOTEL";
+  logoUrl: string;
+  websiteUrl: string;
   promoCode?: string;
-  [key: string]: any;
+  displayOrder: number;
+  clickCount: number;
 };
 
 export type Review = {

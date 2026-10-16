@@ -273,408 +273,421 @@ export default function ReservationPage() {
 
   const currentStep = step === "creneau" ? 1 : step === "details" ? 2 : 3;
 
-  return (
-    <main className="min-h-[70vh] bg-background px-6 py-16 text-foreground">
-      <div className="mx-auto max-w-5xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">
-          {t("reservation.eyebrow")}
+  
+return (
+  <main className="min-h-[70vh] bg-background px-6 py-16 text-foreground">
+    <div className="mx-auto max-w-5xl">
+      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gold">
+        {t("reservation.eyebrow")}
+      </p>
+
+      <h1 className="mt-3 font-serif text-4xl text-foreground">
+        {t("reservation.title")}
+      </h1>
+
+      <div className="mt-5 h-px w-16 bg-gold" />
+
+      <BookingStepper currentStep={currentStep} />
+
+      {message && (
+        <p className="mt-8 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-600 dark:text-red-300">
+          {message}
         </p>
+      )}
 
-        <h1 className="mt-3 font-serif text-4xl">
-          {t("reservation.title")}
-        </h1>
+      {/* Step 1: Date and time slot */}
+      {step === "creneau" && (
+        <section className="mt-10 rounded-2xl border border-foreground/10 bg-surface p-6 sm:p-8">
+          <h2 className="font-serif text-3xl text-foreground">
+            {t("reservation.chooseSlot")}
+          </h2>
 
-        <BookingStepper currentStep={currentStep} />
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            <label>
+              <span className="text-sm font-semibold text-foreground">
+                {t("pricing.date")}
+              </span>
+              <input
+                type="date"
+                min={new Date().toISOString().split("T")[0]}
+                value={draft.eventDate}
+                onChange={(event) =>
+                  updateDraft({
+                    eventDate: event.target.value,
+                    available: null,
+                  })
+                }
+                className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+              />
+            </label>
 
-        {message && (
-          <p className="mt-8 rounded-xl bg-red-100 p-4 text-red-800">
-            {message}
+            <label>
+              <span className="text-sm font-semibold text-foreground">
+                {t("pricing.eventType")}
+              </span>
+              <select
+                value={draft.eventTypeKey}
+                onChange={(event) => {
+                  const eventType = eventTypes.find(
+                    (item) => item.key === event.target.value
+                  );
+
+                  updateDraft({
+                    eventTypeKey: event.target.value,
+                    slot:
+                      eventType &&
+                      !eventType.allowedSlots.includes(draft.slot)
+                        ? eventType.allowedSlots[0]
+                        : draft.slot,
+                    available: null,
+                  });
+                }}
+                className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+              >
+                <option value="">{t("pricing.selectEvent")}</option>
+                {eventTypes.map((eventType) => (
+                  <option key={eventType.key} value={eventType.key}>
+                    {eventType.name[locale]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <p className="mt-8 text-sm font-semibold text-foreground">
+            {t("reservation.desiredSlot")}
           </p>
-        )}
 
-        {step === "creneau" && (
-          <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">
-              {t("reservation.chooseSlot")}
-            </h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {slots.map((item) => {
+              const allowed =
+                !selectedEventType ||
+                selectedEventType.allowedSlots.includes(item.value);
 
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              <label>
-                <span className="text-sm font-semibold">
-                  {t("pricing.date")}
-                </span>
-                <input
-                  type="date"
-                  min={new Date().toISOString().split("T")[0]}
-                  value={draft.eventDate}
-                  onChange={(event) =>
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  disabled={!allowed}
+                  onClick={() =>
                     updateDraft({
-                      eventDate: event.target.value,
+                      slot: item.value,
                       available: null,
                     })
                   }
-                  className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-                />
-              </label>
-
-              <label>
-                <span className="text-sm font-semibold">
-                  {t("pricing.eventType")}
-                </span>
-                <select
-                  value={draft.eventTypeKey}
-                  onChange={(event) => {
-                    const eventType = eventTypes.find(
-                      (item) => item.key === event.target.value
-                    );
-
-                    updateDraft({
-                      eventTypeKey: event.target.value,
-                      slot:
-                        eventType &&
-                        !eventType.allowedSlots.includes(draft.slot)
-                          ? eventType.allowedSlots[0]
-                          : draft.slot,
-                      available: null,
-                    });
-                  }}
-                  className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
+                  className={`rounded-xl border p-5 text-left transition-colors ${
+                    draft.slot === item.value
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-foreground/15 bg-background text-foreground hover:border-gold/60"
+                  } ${!allowed ? "cursor-not-allowed opacity-40" : ""}`}
                 >
-                  <option value="">{t("pricing.selectEvent")}</option>
-                  {eventTypes.map((eventType) => (
-                    <option key={eventType.key} value={eventType.key}>
-                      {eventType.name[locale]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+                  <strong className="block">
+                    {slotLabels[item.value]}
+                  </strong>
+                  <span className="mt-1 block text-sm opacity-75">
+                    {item.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-            <p className="mt-8 text-sm font-semibold">
-              {t("reservation.desiredSlot")}
+          <button
+            type="button"
+            onClick={handleAvailability}
+            disabled={checking}
+            className="mt-8 rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {checking
+              ? t("reservation.checking")
+              : t("reservation.checkAvailability")}
+          </button>
+        </section>
+      )}
+
+      {/* Step 2: Configure reservation */}
+      {step === "details" && (
+        <section className="mt-10 rounded-2xl border border-foreground/10 bg-surface p-6 sm:p-8">
+          <h2 className="font-serif text-3xl text-foreground">
+            {t("reservation.configure")}
+          </h2>
+
+          <p className="mt-3 text-foreground/70">
+            {selectedEventType?.name[locale]} · {draft.eventDate} ·{" "}
+            {slotLabels[draft.slot]}
+          </p>
+
+          <div className="mt-8">
+            <p className="text-sm font-semibold text-foreground">
+              {t("reservation.pricingGrid")}
             </p>
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {slots.map((item) => {
-                const allowed =
-                  !selectedEventType ||
-                  selectedEventType.allowedSlots.includes(item.value);
+            <div className="mt-3 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  updateDraft({ pricingMarket: "RESIDENT" })
+                }
+                className={
+                  draft.pricingMarket === "RESIDENT"
+                    ? "rounded-full border border-gold bg-gold px-5 py-3 font-semibold text-black"
+                    : "rounded-full border border-foreground/20 px-5 py-3 text-foreground transition-colors hover:border-gold hover:text-gold"
+                }
+              >
+                {t("pricing.resident")}
+              </button>
 
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    disabled={!allowed}
-                    onClick={() =>
-                      updateDraft({
-                        slot: item.value,
-                        available: null,
-                      })
-                    }
-                    className={`rounded-xl border p-5 text-left transition ${
-                      draft.slot === item.value
-                        ? "border-gold bg-gold text-black"
-                        : "border-foreground/20"
-                    } ${!allowed ? "cursor-not-allowed opacity-40" : ""}`}
-                  >
-                    <strong className="block">
-                      {slotLabels[item.value]}
-                    </strong>
-                    <span className="mt-1 block text-sm opacity-75">
-                      {item.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleAvailability}
-              disabled={checking}
-              className="mt-8 rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
-            >
-              {checking
-                ? t("reservation.checking")
-                : t("reservation.checkAvailability")}
-            </button>
-          </section>
-        )}
-
-        {step === "details" && (
-          <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">
-              {t("reservation.configure")}
-            </h2>
-
-            <p className="mt-3 text-foreground/70">
-              {selectedEventType?.name[locale]} · {draft.eventDate} ·{" "}
-              {slotLabels[draft.slot]}
-            </p>
-
-            <div className="mt-8">
-              <p className="text-sm font-semibold">
-                {t("reservation.pricingGrid")}
-              </p>
-
-              <div className="mt-3 flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateDraft({ pricingMarket: "RESIDENT" })
-                  }
-                  className={
-                    draft.pricingMarket === "RESIDENT"
-                      ? "rounded-full bg-gold px-5 py-3 font-semibold text-black"
-                      : "rounded-full border border-foreground/20 px-5 py-3"
-                  }
-                >
-                  {t("pricing.resident")}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateDraft({ pricingMarket: "DIASPORA" })
-                  }
-                  className={
-                    draft.pricingMarket === "DIASPORA"
-                      ? "rounded-full bg-gold px-5 py-3 font-semibold text-black"
-                      : "rounded-full border border-foreground/20 px-5 py-3"
-                  }
-                >
-                  {t("pricing.diaspora")}
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-8 grid gap-6 md:grid-cols-2">
-              <label>
-                <span className="text-sm font-semibold">
-                  {t("pricing.womenGuests")}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={draft.womenGuests}
-                  onChange={(event) =>
-                    updateDraft({
-                      womenGuests: Number(event.target.value),
-                    })
-                  }
-                  className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-                />
-              </label>
-
-              <label>
-                <span className="text-sm font-semibold">
-                  {t("pricing.menGuests")}
-                </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={draft.menGuests}
-                  onChange={(event) =>
-                    updateDraft({
-                      menGuests: Number(event.target.value),
-                    })
-                  }
-                  className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-                />
-              </label>
-            </div>
-
-            <h3 className="mt-10 font-serif text-2xl">
-              {t("reservation.choosePack")}
-            </h3>
-
-            <div className="mt-5 grid gap-5 md:grid-cols-3">
-              {packs.map((pack) => {
-                const price =
+              <button
+                type="button"
+                onClick={() =>
+                  updateDraft({ pricingMarket: "DIASPORA" })
+                }
+                className={
                   draft.pricingMarket === "DIASPORA"
-                    ? pack.diasporaBasePriceDZD
-                    : pack.basePriceDZD;
-
-                const selected = draft.packKey === pack.key;
-
-                return (
-                  <button
-                    key={pack.key}
-                    type="button"
-                    onClick={() => {
-                      updateDraft({ packKey: pack.key });
-                      setCartPackKey(pack.key);
-                    }}
-                    className={`rounded-2xl border p-5 text-left ${
-                      selected
-                        ? "border-gold bg-gold/10"
-                        : "border-foreground/15"
-                    }`}
-                  >
-                    <strong className="font-serif text-xl text-gold">
-                      {pack.name[locale]}
-                    </strong>
-
-                    <span className="mt-3 block text-sm text-foreground/70">
-                      {pack.description[locale]}
-                    </span>
-
-                    {price !== undefined && (
-                      <span className="mt-4 block font-bold">
-                        {formatPrice(price)}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-7 rounded-xl bg-foreground/5 p-4 text-sm">
-              {optionKeys.length > 0 ? (
-                <p>
-                  {optionKeys.length} {t("reservation.selectedOptions")}
-                </p>
-              ) : (
-                <p>{t("reservation.noOptions")}</p>
-              )}
-
-              <Link
-                to="/services"
-                state={{ returnTo: "/reservation/details" }}
-                className="mt-2 inline-block font-semibold text-gold underline underline-offset-4"
+                    ? "rounded-full border border-gold bg-gold px-5 py-3 font-semibold text-black"
+                    : "rounded-full border border-foreground/20 px-5 py-3 text-foreground transition-colors hover:border-gold hover:text-gold"
+                }
               >
-                {t("reservation.manageOptions")}
-              </Link>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => navigate("/reservation/creneau")}
-                className="rounded-full border border-foreground/20 px-6 py-3 font-semibold"
-              >
-                {t("reservation.back")}
-              </button>
-
-              <button
-                type="button"
-                onClick={continueToQuote}
-                className="rounded-full bg-gold px-6 py-3 font-semibold text-black"
-              >
-                {t("reservation.continueQuote")}
+                {t("pricing.diaspora")}
               </button>
             </div>
-          </section>
-        )}
+          </div>
 
-        {step === "devis" && (
-          <section className="mt-10 rounded-2xl border border-foreground/15 p-6">
-            <h2 className="font-serif text-3xl">
-              {t("reservation.quote")}
-            </h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <label>
+              <span className="text-sm font-semibold text-foreground">
+                {t("pricing.womenGuests")}
+              </span>
+              <input
+                type="number"
+                min="0"
+                value={draft.womenGuests}
+                onChange={(event) =>
+                  updateDraft({
+                    womenGuests: Number(event.target.value),
+                  })
+                }
+                className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+              />
+            </label>
 
-            <div className="mt-6 grid gap-4 rounded-xl bg-foreground/5 p-5 sm:grid-cols-2">
-              <p>
-                <span className="block text-sm text-foreground/60">
-                  {t("pricing.date")}
-                </span>
-                <strong>{draft.eventDate}</strong>
-              </p>
+            <label>
+              <span className="text-sm font-semibold text-foreground">
+                {t("pricing.menGuests")}
+              </span>
+              <input
+                type="number"
+                min="0"
+                value={draft.menGuests}
+                onChange={(event) =>
+                  updateDraft({
+                    menGuests: Number(event.target.value),
+                  })
+                }
+                className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+              />
+            </label>
+          </div>
 
-              <p>
-                <span className="block text-sm text-foreground/60">
-                  {t("pricing.slot")}
-                </span>
-                <strong>{slotLabels[draft.slot]}</strong>
-              </p>
+          <h3 className="mt-10 font-serif text-2xl text-foreground">
+            {t("reservation.choosePack")}
+          </h3>
 
-              <p>
-                <span className="block text-sm text-foreground/60">
-                  {t("reservation.event")}
-                </span>
-                <strong>{selectedEventType?.name[locale]}</strong>
-              </p>
+          <div className="mt-5 grid gap-5 md:grid-cols-3">
+            {packs.map((pack) => {
+              const price =
+                draft.pricingMarket === "DIASPORA"
+                  ? pack.diasporaBasePriceDZD
+                  : pack.basePriceDZD;
 
-              <p>
-                <span className="block text-sm text-foreground/60">
-                  {t("reservation.pack")}
-                </span>
-                <strong>{selectedPack?.name[locale]}</strong>
-              </p>
-            </div>
+              const selected = draft.packKey === pack.key;
 
-            {!estimate ? (
-              <button
-                type="button"
-                onClick={handleCalculate}
-                disabled={calculating}
-                className="mt-7 rounded-full bg-gold px-6 py-3 font-semibold text-black"
-              >
-                {calculating
-                  ? t("pricing.calculating")
-                  : t("reservation.calculateQuote")}
-              </button>
-            ) : (
-              <div className="mt-7 rounded-2xl border border-gold bg-gold/10 p-6">
-                <p className="text-sm text-foreground/60">
-                  {t("pricing.estimateTotal")}
-                </p>
-                <p className="mt-1 text-3xl font-bold">
-                  {formatPrice(estimate.pricing.totalDZD)}
-                </p>
+              return (
+                <button
+                  key={pack.key}
+                  type="button"
+                  onClick={() => {
+                    updateDraft({ packKey: pack.key });
+                    setCartPackKey(pack.key);
+                  }}
+                  className={`rounded-2xl border bg-background p-5 text-left transition-all hover:border-gold/60 ${
+                    selected
+                      ? "border-gold bg-gold/10 ring-1 ring-gold/30"
+                      : "border-foreground/15"
+                  }`}
+                >
+                  <strong className="font-serif text-xl text-gold">
+                    {pack.name[locale]}
+                  </strong>
 
-                <p className="mt-5 text-sm text-foreground/60">
-                  {t("pricing.deposit")} (
-                  {estimate.eventType.depositPercent}%)
-                </p>
-
-                <p className="mt-1 text-2xl font-bold text-gold">
-                  {formatPrice(estimate.pricing.depositDZD)}
-                </p>
-
-                <label className="mt-7 block">
-                  <span className="text-sm font-semibold">
-                    {t("reservation.phone")}
+                  <span className="mt-3 block text-sm leading-relaxed text-foreground/70">
+                    {pack.description[locale]}
                   </span>
 
-                  <input
-                    type="tel"
-                    placeholder="0555000000"
-                    value={draft.phone}
-                    onChange={(event) => {
-                      setDraft((current) => ({
-                        ...current,
-                        phone: event.target.value,
-                      }));
-                      setMessage("");
-                    }}
-                    className="mt-2 w-full rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={sendingOtp}
-                  className="mt-5 rounded-full bg-black px-6 py-3 font-semibold text-ivory dark:bg-gold dark:text-black"
-                >
-                  {sendingOtp
-                    ? t("reservation.sending")
-                    : t("reservation.sendOtp")}
+                  {price !== undefined && (
+                    <span className="mt-4 block font-bold text-foreground">
+                      {formatPrice(price)}
+                    </span>
+                  )}
                 </button>
-              </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-7 rounded-xl border border-foreground/10 bg-background p-4 text-sm text-foreground/75">
+            {optionKeys.length > 0 ? (
+              <p>
+                {optionKeys.length} {t("reservation.selectedOptions")}
+              </p>
+            ) : (
+              <p>{t("reservation.noOptions")}</p>
             )}
 
+            <Link
+              to="/services"
+              state={{ returnTo: "/reservation/details" }}
+              className="mt-2 inline-block font-semibold text-gold underline underline-offset-4 hover:opacity-80"
+            >
+              {t("reservation.manageOptions")}
+            </Link>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
             <button
               type="button"
-              onClick={() => navigate("/reservation/details")}
-              className="mt-7 rounded-full border border-foreground/20 px-6 py-3 font-semibold"
+              onClick={() => navigate("/reservation/creneau")}
+              className="rounded-full border border-foreground/20 px-6 py-3 font-semibold text-foreground transition-colors hover:border-gold hover:text-gold"
             >
               {t("reservation.back")}
             </button>
-          </section>
-        )}
-      </div>
-    </main>
-  );
+
+            <button
+              type="button"
+              onClick={continueToQuote}
+              className="rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90"
+            >
+              {t("reservation.continueQuote")}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Step 3: Quote and OTP */}
+      {step === "devis" && (
+        <section className="mt-10 rounded-2xl border border-foreground/10 bg-surface p-6 sm:p-8">
+          <h2 className="font-serif text-3xl text-foreground">
+            {t("reservation.quote")}
+          </h2>
+
+          <div className="mt-6 grid gap-4 rounded-xl border border-foreground/10 bg-background p-5 sm:grid-cols-2">
+            <p>
+              <span className="block text-sm text-foreground/60">
+                {t("pricing.date")}
+              </span>
+              <strong className="text-foreground">{draft.eventDate}</strong>
+            </p>
+
+            <p>
+              <span className="block text-sm text-foreground/60">
+                {t("pricing.slot")}
+              </span>
+              <strong className="text-foreground">
+                {slotLabels[draft.slot]}
+              </strong>
+            </p>
+
+            <p>
+              <span className="block text-sm text-foreground/60">
+                {t("reservation.event")}
+              </span>
+              <strong className="text-foreground">
+                {selectedEventType?.name[locale]}
+              </strong>
+            </p>
+
+            <p>
+              <span className="block text-sm text-foreground/60">
+                {t("reservation.pack")}
+              </span>
+              <strong className="text-foreground">
+                {selectedPack?.name[locale]}
+              </strong>
+            </p>
+          </div>
+
+          {!estimate ? (
+            <button
+              type="button"
+              onClick={handleCalculate}
+              disabled={calculating}
+              className="mt-7 rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {calculating
+                ? t("pricing.calculating")
+                : t("reservation.calculateQuote")}
+            </button>
+          ) : (
+            <div className="mt-7 rounded-2xl border border-gold/50 bg-gold/10 p-6">
+              <p className="text-sm text-foreground/70">
+                {t("pricing.estimateTotal")}
+              </p>
+              <p className="mt-1 text-3xl font-bold text-foreground">
+                {formatPrice(estimate.pricing.totalDZD)}
+              </p>
+
+              <p className="mt-5 text-sm text-foreground/70">
+                {t("pricing.deposit")} (
+                {estimate.eventType.depositPercent}%)
+              </p>
+
+              <p className="mt-1 text-2xl font-bold text-gold">
+                {formatPrice(estimate.pricing.depositDZD)}
+              </p>
+
+              <label className="mt-7 block">
+                <span className="text-sm font-semibold text-foreground">
+                  {t("reservation.phone")}
+                </span>
+
+                <input
+                  type="tel"
+                  placeholder="0555000000"
+                  value={draft.phone}
+                  onChange={(event) => {
+                    setDraft((current) => ({
+                      ...current,
+                      phone: event.target.value,
+                    }));
+                    setMessage("");
+                  }}
+                  className="mt-2 w-full rounded-xl border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none focus:border-gold"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={sendingOtp}
+                className="mt-5 rounded-full bg-gold px-6 py-3 font-semibold text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {sendingOtp
+                  ? t("reservation.sending")
+                  : t("reservation.sendOtp")}
+              </button>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => navigate("/reservation/details")}
+            className="mt-7 rounded-full border border-foreground/20 px-6 py-3 font-semibold text-foreground transition-colors hover:border-gold hover:text-gold"
+          >
+            {t("reservation.back")}
+          </button>
+        </section>
+      )}
+    </div>
+  </main>
+);
+
 }

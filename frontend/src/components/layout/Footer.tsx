@@ -27,6 +27,8 @@ export default function Footer() {
             <Link to="/galerie">{t("nav.gallery")}</Link>
             <Link to="/avis">{t("nav.reviews")}</Link>
             <Link to="/contact">{t("nav.contact")}</Link>
+            <Link to="/partenaires">{t("nav.partners")}</Link>
+            <Link to="/faq">{t("nav.faq")}</Link>
           </div>
         </div>
 

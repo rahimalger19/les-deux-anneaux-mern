@@ -57,16 +57,7 @@ export async function completeAdminBooking(req: Request, res: Response) {
       });
     }
 
-    const today = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Africa/Algiers",
-    }).format(new Date());
-
-    if (booking.eventDate > today) {
-      return res.status(400).json({
-        success: false,
-        message: "L’événement ne peut pas être terminé avant sa date prévue.",
-      });
-    }
+    
 
     booking.status = "DONE";
     await booking.save();

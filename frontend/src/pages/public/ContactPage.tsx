@@ -99,160 +99,168 @@ export default function ContactPage() {
 
   const isAppointment = form.requestType === "APPOINTMENT";
 
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
-        {t("contact.eyebrow")}
-      </p>
+  
+return (
+  <main className="mx-auto max-w-3xl px-6 py-16">
+    <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
+      {t("contact.eyebrow")}
+    </p>
 
-      <h1 className="mt-3 font-serif text-4xl">
-        {t("contact.title")}
-      </h1>
+    <h1 className="mt-3 font-serif text-4xl text-foreground">
+      {t("contact.title")}
+    </h1>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-8 grid gap-5 rounded-2xl border border-black/10 bg-white p-6"
-      >
-        <label className="grid gap-2">
-          <span className="text-sm font-semibold">
-            {t("contact.requestType")}
-          </span>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-8 grid gap-5 rounded-2xl border border-foreground/10 bg-surface p-6 sm:p-8"
+    >
+      <label className="grid gap-2">
+        <span className="text-sm font-semibold text-foreground">
+          {t("contact.requestType")}
+        </span>
 
-          <select
-            name="requestType"
-            value={form.requestType}
-            onChange={updateField}
-            className="rounded-lg border border-black/15 px-4 py-3"
-          >
-            <option value="APPOINTMENT">
-              {t("contact.appointmentRequest")}
-            </option>
-            <option value="GENERAL">
-              {t("contact.generalRequest")}
-            </option>
-          </select>
-        </label>
-
-        <input
-          name="name"
-          value={form.name}
+        <select
+          name="requestType"
+          value={form.requestType}
           onChange={updateField}
-          placeholder={t("contact.name")}
-          required
-          className="rounded-lg border border-black/15 px-4 py-3"
-        />
+          className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+        >
+          <option value="APPOINTMENT">
+            {t("contact.appointmentRequest")}
+          </option>
+          <option value="GENERAL">
+            {t("contact.generalRequest")}
+          </option>
+        </select>
+      </label>
 
-        <input
-          name="phone"
-          value={form.phone}
-          onChange={updateField}
-          placeholder={t("contact.phone")}
-          required
-          className="rounded-lg border border-black/15 px-4 py-3"
-        />
+      <input
+        name="name"
+        value={form.name}
+        onChange={updateField}
+        placeholder={t("contact.name")}
+        required
+        className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground placeholder:text-foreground/50 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+      />
 
-        <input
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={updateField}
-          placeholder={t("contact.email")}
-          required
-          className="rounded-lg border border-black/15 px-4 py-3"
-        />
+      <input
+        name="phone"
+        value={form.phone}
+        onChange={updateField}
+        placeholder={t("contact.phone")}
+        required
+        className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground placeholder:text-foreground/50 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+      />
 
-        <input
-          name="subject"
-          value={form.subject}
-          onChange={updateField}
-          placeholder={t("contact.subject")}
-          required
-          className="rounded-lg border border-black/15 px-4 py-3"
-        />
+      <input
+        name="email"
+        type="email"
+        value={form.email}
+        onChange={updateField}
+        placeholder={t("contact.email")}
+        required
+        className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground placeholder:text-foreground/50 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+      />
 
-        {isAppointment ? (
-          <>
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold">
-                {t("contact.appointmentFormat")}
-              </span>
+      <input
+        name="subject"
+        value={form.subject}
+        onChange={updateField}
+        placeholder={t("contact.subject")}
+        required
+        className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground placeholder:text-foreground/50 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+      />
 
-              <select
-                name="requestedAppointmentType"
-                value={form.requestedAppointmentType}
-                onChange={updateField}
-                className="rounded-lg border border-black/15 px-4 py-3"
-              >
-                <option value="VISIT">{t("contact.visit")}</option>
-                <option value="VIDEO">{t("contact.video")}</option>
-              </select>
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold">
-                {t("contact.preferredSlot")}
-              </span>
-
-              <select
-                name="requestedAppointmentSlot"
-                value={form.requestedAppointmentSlot}
-                onChange={updateField}
-                className="rounded-lg border border-black/15 px-4 py-3"
-              >
-                <option value="DAY">{t("contact.day")}</option>
-                <option value="EVENING">{t("contact.evening")}</option>
-                <option value="NIGHT">{t("contact.night")}</option>
-              </select>
-            </label>
-          </>
-        ) : (
+      {isAppointment ? (
+        <>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold">
-              {t("contact.callbackPreference")}
+            <span className="text-sm font-semibold text-foreground">
+              {t("contact.appointmentFormat")}
             </span>
 
             <select
-              name="callbackSlot"
-              value={form.callbackSlot}
+              name="requestedAppointmentType"
+              value={form.requestedAppointmentType}
               onChange={updateField}
-              className="rounded-lg border border-black/15 px-4 py-3"
+              className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
             >
-              <option value="AFTERNOON">{t("contact.afternoon")}</option>
-              <option value="EVENING">{t("contact.evening")}</option>
-              <option value="NIGHT">{t("contact.night")}</option>
-              <option value="DAY">{t("contact.day")}</option>
+              <option value="VISIT">{t("contact.visit")}</option>
+              <option value="VIDEO">{t("contact.video")}</option>
             </select>
           </label>
-        )}
 
-        <textarea
-          name="message"
-          value={form.message}
-          onChange={updateField}
-          placeholder={
-            isAppointment
-              ? t("contact.appointmentMessage")
-              : t("contact.generalMessage")
-          }
-          rows={6}
-          required
-          className="rounded-lg border border-black/15 px-4 py-3"
-        />
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-foreground">
+              {t("contact.preferredSlot")}
+            </span>
 
-        {feedback ? <p className="text-sm">{feedback}</p> : null}
+            <select
+              name="requestedAppointmentSlot"
+              value={form.requestedAppointmentSlot}
+              onChange={updateField}
+              className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+            >
+              <option value="DAY">{t("contact.day")}</option>
+              <option value="EVENING">{t("contact.evening")}</option>
+              <option value="NIGHT">{t("contact.night")}</option>
+            </select>
+          </label>
+        </>
+      ) : (
+        <label className="grid gap-2">
+          <span className="text-sm font-semibold text-foreground">
+            {t("contact.callbackPreference")}
+          </span>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
+          <select
+            name="callbackSlot"
+            value={form.callbackSlot}
+            onChange={updateField}
+            className="w-full rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+          >
+            <option value="AFTERNOON">{t("contact.afternoon")}</option>
+            <option value="EVENING">{t("contact.evening")}</option>
+            <option value="NIGHT">{t("contact.night")}</option>
+            <option value="DAY">{t("contact.day")}</option>
+          </select>
+        </label>
+      )}
+
+      <textarea
+        name="message"
+        value={form.message}
+        onChange={updateField}
+        placeholder={
+          isAppointment
+            ? t("contact.appointmentMessage")
+            : t("contact.generalMessage")
+        }
+        rows={6}
+        required
+        className="w-full resize-y rounded-lg border border-foreground/20 bg-field px-4 py-3 text-foreground placeholder:text-foreground/50 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold"
+      />
+
+      {feedback ? (
+        <p
+          role="status"
+          className="text-sm text-foreground"
         >
-          {loading
-            ? t("contact.sending")
-            : isAppointment
-              ? t("contact.sendAppointment")
-              : t("contact.sendMessage")}
-        </button>
-      </form>
-    </main>
-  );
+          {feedback}
+        </p>
+      ) : null}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="rounded-full bg-black px-6 py-3 font-semibold text-ivory transition-colors hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gold dark:text-black dark:hover:bg-gold/90"
+      >
+        {loading
+          ? t("contact.sending")
+          : isAppointment
+            ? t("contact.sendAppointment")
+            : t("contact.sendMessage")}
+      </button>
+    </form>
+  </main>
+);
 }

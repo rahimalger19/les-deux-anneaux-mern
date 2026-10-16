@@ -254,7 +254,27 @@ export const translations = {
   "Choisissez votre date, votre créneau et votre pack en quelques minutes.",
 "venue.unavailable":
   "Les informations officielles sur la salle seront publiées après validation par Les Deux Anneaux.",
-  },
+"nav.partners": "Partenaires",
+"nav.faq": "FAQ",
+
+"partners.eyebrow": "Partenaires",
+"partners.title": "Nos partenaires",
+"partners.empty": "Les partenaires officiels seront publiés ici.",
+"partners.visit": "Visiter",
+"partners.category.CATERER": "Traiteur",
+"partners.category.DECOR": "Décoration",
+"partners.category.PHOTO": "Photographie",
+"partners.category.DJ": "DJ",
+"partners.category.HOTEL": "Hôtel",
+
+"faq.eyebrow": "Questions fréquentes",
+"faq.title": "Comment pouvons-nous vous aider ?",
+"faq.description":
+  "Retrouvez les réponses aux questions les plus fréquentes sur nos réservations et nos services.",
+"faq.empty": "Aucune question fréquente n’est disponible pour le moment.",
+"faq.contactPrompt": "Vous ne trouvez pas votre réponse ?",
+"faq.contactLink": "Nous contacter",  
+},
 
   en: {
     "brand.name": "Les Deux Anneaux",
@@ -509,7 +529,27 @@ export const translations = {
   "Choose your date, time slot and package in just a few minutes.",
 "venue.unavailable":
   "Official venue information will be published after validation by Les Deux Anneaux.",
-  },
+"nav.partners": "Partners",
+"nav.faq": "FAQ",
+
+"partners.eyebrow": "Partners",
+"partners.title": "Our partners",
+"partners.empty": "Official partners will be published here.",
+"partners.visit": "Visit",
+"partners.category.CATERER": "Caterer",
+"partners.category.DECOR": "Decoration",
+"partners.category.PHOTO": "Photography",
+"partners.category.DJ": "DJ",
+"partners.category.HOTEL": "Hotel",
+
+"faq.eyebrow": "Frequently asked questions",
+"faq.title": "How can we help you?",
+"faq.description":
+  "Find answers to the most common questions about our bookings and services.",
+"faq.empty": "No frequently asked questions are available yet.",
+"faq.contactPrompt": "Could not find your answer?",
+"faq.contactLink": "Contact us",  
+},
 
   "ar-DZ": {
     "brand.name": "القاعتان",
@@ -764,7 +804,27 @@ export const translations = {
   "اختاروا التاريخ والفترة والباقـة في بضع دقائق.",
 "venue.unavailable":
   "سيتم نشر المعلومات الرسمية عن القاعة بعد اعتمادها من القاعتين.",
-  },
+"nav.partners": "الشركاء",
+"nav.faq": "الأسئلة الشائعة",
+
+"partners.eyebrow": "الشركاء",
+"partners.title": "شركاؤنا",
+"partners.empty": "سيظهر شركاؤنا الرسميون هنا.",
+"partners.visit": "زيارة",
+"partners.category.CATERER": "مموّن حفلات",
+"partners.category.DECOR": "ديكور",
+"partners.category.PHOTO": "تصوير",
+"partners.category.DJ": "دي جي",
+"partners.category.HOTEL": "فندق",
+
+"faq.eyebrow": "الأسئلة الشائعة",
+"faq.title": "كيف يمكننا مساعدتك؟",
+"faq.description":
+  "اعثر على إجابات للأسئلة الأكثر شيوعًا حول الحجوزات وخدماتنا.",
+"faq.empty": "لا توجد أسئلة شائعة متاحة حاليًا.",
+"faq.contactPrompt": "لم تجد الإجابة التي تبحث عنها؟",
+"faq.contactLink": "اتصل بنا",  
+},
 } as const;
 
 export type Language = keyof typeof translations;
