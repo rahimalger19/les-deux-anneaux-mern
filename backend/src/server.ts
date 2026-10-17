@@ -54,6 +54,10 @@ import currencyRoutes from "./routes/currency.routes";
 dotenv.config();
 
 const app = express();
+app.use(
+  "/uploads/reviews",
+  express.static(path.resolve(process.cwd(), "uploads", "reviews"))
+);
 
 app.use(
   cors({

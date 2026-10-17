@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
   return (
     <main className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden bg-background px-4 py-12 text-foreground sm:px-6 lg:py-16">
      <div className="fixed left-4 top-20 z-50 sm:left-6 sm:top-24">
-                   <BackButton fallback="/" label="Retour à l’accueil" />
+                   <BackButton fallback="/" label="Retour" />
                  </div>
       {/* Decorative background */}
       <div
