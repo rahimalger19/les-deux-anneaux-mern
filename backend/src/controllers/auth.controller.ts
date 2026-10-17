@@ -492,12 +492,13 @@ export async function me(req: Request, res: Response) {
         name: user.name,
         email: user.email,
         phone: user.phone,
+        profilePhotoUrl: user.profilePhotoUrl,
         language: user.language,
         currency: user.currency,
         newsletterOptIn: user.newsletterOptIn,
         role: user.role,
         twoFactorEnabled: user.twoFactorEnabled,
-      },
+             },
     });
   } catch {
     return res.status(401).json({

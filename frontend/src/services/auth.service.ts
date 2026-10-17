@@ -16,6 +16,7 @@ export type AuthUser = {
     | "COMPTA"
     | "READONLY"
     | "SUPER_ADMIN";
+    profilePhotoUrl?: string;
 };
 
 export type EmailLoginResponse = {

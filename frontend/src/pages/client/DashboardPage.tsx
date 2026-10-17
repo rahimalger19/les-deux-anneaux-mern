@@ -6,6 +6,7 @@ import {
   type ClientBooking,
 } from "../../services/client-booking.service";
 
+
 type DashboardNotification = {
   id: string;
   title: string;
@@ -134,6 +135,7 @@ export default function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-10">
+      
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
@@ -143,8 +145,9 @@ export default function DashboardPage() {
           <h1 className="mt-3 font-serif text-4xl">
             Bonjour {user?.name || "Client"}
           </h1>
+          
         </div>
-
+        
         <Link
           to="/espace/nouvelle-reservation"
           className="rounded-full bg-black px-5 py-3 font-semibold text-ivory"

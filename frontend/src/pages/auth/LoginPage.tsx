@@ -9,6 +9,7 @@ import {
   verifyTwoFactorLogin,
 } from "../../services/auth.service";
 import { getDashboardRoute } from "../../lib/dashboard-route";
+import BackButton from "../../components/common/BackButton";
 
 function getOtpTtlSeconds(value: unknown) {
   const seconds = Number(value);
@@ -193,191 +194,326 @@ navigate(getDashboardRoute(authenticatedUser?.role), {
     }
   }
 
+ 
   return (
-    <main className="mx-auto max-w-xl px-6 py-16">
-      <h1 className="font-serif text-4xl">Connexion</h1>
+    <main className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden bg-background px-4 py-12 text-foreground sm:px-6 lg:py-16">
+      <div className="fixed left-4 top-20 z-50 sm:left-6 sm:top-24">
+              <BackButton fallback="/" label="Retour à l’accueil" />
+            </div>
+      {/* Decorative background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
+      />
 
-      <div className="mt-8 flex gap-3">
-        <button
-          type="button"
-          onClick={() => selectMode("EMAIL")}
-          className={
-            mode === "EMAIL"
-              ? "rounded-full bg-black px-5 py-3 text-ivory"
-              : "rounded-full border border-black/20 px-5 py-3"
-          }
-        >
-          Email
-        </button>
+      <section className="relative w-full max-w-md overflow-hidden rounded-3xl border border-foreground/10 bg-background shadow-2xl shadow-black/10">
+        {/* Gold accent */}
+        <div className="h-1 w-full bg-gold" />
 
-        <button
-          type="button"
-          onClick={() => selectMode("PHONE")}
-          className={
-            mode === "PHONE"
-              ? "rounded-full bg-black px-5 py-3 text-ivory"
-              : "rounded-full border border-black/20 px-5 py-3"
-          }
-        >
-          Téléphone + OTP
-        </button>
-      </div>
-
-      {mode === "EMAIL" && emailStep === "PASSWORD" ? (
-        <form onSubmit={loginWithEmail} className="mt-8 grid gap-5">
-          <input
-            type="email"
-            autoComplete="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            className="rounded-xl border border-black/15 px-4 py-3"
-          />
-
-          <input
-            type="password"
-            autoComplete="current-password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            className="rounded-xl border border-black/15 px-4 py-3"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
-          >
-            Se connecter
-          </button>
-        </form>
-      ) : null}
-
-      {mode === "EMAIL" && emailStep === "TWO_FACTOR" ? (
-        <form onSubmit={confirmTwoFactor} className="mt-8 grid gap-5">
-          <p className="rounded-xl bg-ivory p-4">
-            Confirmez votre connexion avec le code envoyé à votre téléphone.
-          </p>
-
-          {developmentOtp ? (
-            <p className="rounded-xl bg-yellow-100 p-4 text-yellow-900">
-              Développement uniquement — code : <strong>{developmentOtp}</strong>
+        <div className="px-6 py-9 sm:px-9 sm:py-10">
+          {/* Heading */}
+          <div className="mb-8 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              Les Deux Anneaux
             </p>
-          ) : null}
 
-          <input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            placeholder="Code OTP à 6 chiffres"
-            value={otpCode}
-            onChange={(event) =>
-              setOtpCode(event.target.value.replace(/\D/g, ""))
-            }
-            required
-            className="rounded-xl border border-black/15 px-4 py-3"
-          />
+            <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              Connexion
+            </h1>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
-          >
-            Vérifier et se connecter
-          </button>
+            <p className="mx-auto mt-3 max-w-xs text-sm leading-6 text-foreground/60">
+              Retrouvez votre espace et gérez vos réservations en toute
+              simplicité.
+            </p>
 
-          <button
-            type="button"
-            onClick={() => selectMode("EMAIL")}
-            className="text-sm underline"
-          >
-            Retour
-          </button>
-        </form>
-      ) : null}
+            <div className="mx-auto mt-5 h-px w-16 bg-gold/70" />
+          </div>
 
-      {mode === "PHONE" ? (
-        <form onSubmit={loginWithPhone} className="mt-8 grid gap-5">
-          <input
-            type="tel"
-            autoComplete="tel"
-            placeholder="Téléphone"
-            value={phone}
-            onChange={(event) => setPhone(event.target.value)}
-            required
-            className="rounded-xl border border-black/15 px-4 py-3"
-          />
+          {/* Login method selector */}
+          <div className="grid grid-cols-2 gap-2 rounded-2xl border border-foreground/10 bg-foreground/[0.03] p-1.5">
+            <button
+              type="button"
+              onClick={() => selectMode("EMAIL")}
+              aria-pressed={mode === "EMAIL"}
+              className={
+                mode === "EMAIL"
+                  ? "rounded-xl bg-espresso px-3 py-3 text-sm font-semibold text-ivory shadow-md transition duration-200"
+                  : "rounded-xl px-3 py-3 text-sm font-medium text-foreground/65 transition duration-200 hover:bg-foreground/5 hover:text-foreground"
+              }
+            >
+              Email
+            </button>
 
-          <button
-            type="button"
-            onClick={() => void sendPhoneOtp()}
-            disabled={loading || !phone.trim() || phoneSecondsRemaining > 0}
-            className="rounded-full border border-black/20 px-6 py-3 font-semibold disabled:opacity-50"
-          >
-            {phoneSecondsRemaining > 0
-              ? `Nouveau code dans ${phoneSecondsRemaining}s`
-              : phoneOtpExpiresAt
-                ? "Renvoyer le code"
-                : "Recevoir le code"}
-          </button>
+            <button
+              type="button"
+              onClick={() => selectMode("PHONE")}
+              aria-pressed={mode === "PHONE"}
+              className={
+                mode === "PHONE"
+                  ? "rounded-xl bg-espresso px-3 py-3 text-sm font-semibold text-ivory shadow-md transition duration-200"
+                  : "rounded-xl px-3 py-3 text-sm font-medium text-foreground/65 transition duration-200 hover:bg-foreground/5 hover:text-foreground"
+              }
+            >
+              Téléphone + OTP
+            </button>
+          </div>
 
-          {phoneOtpExpiresAt ? (
-            <>
-              <p className="text-sm text-black/70">
-                {phoneSecondsRemaining > 0
-                  ? `Code valide pendant ${Math.ceil(
-                      phoneSecondsRemaining / 60
-                    )} minute(s).`
-                  : "Le code a expiré. Demandez-en un nouveau."}
-              </p>
+          {/* Email and password */}
+          {mode === "EMAIL" && emailStep === "PASSWORD" ? (
+            <form onSubmit={loginWithEmail} className="mt-7 grid gap-5">
+              <div className="grid gap-2">
+                <label
+                  htmlFor="login-email"
+                  className="text-sm font-semibold"
+                >
+                  Adresse email
+                </label>
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="exemple@email.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                />
+              </div>
 
-              {developmentOtp ? (
-                <p className="rounded-xl bg-yellow-100 p-4 text-yellow-900">
-                  Développement uniquement — code :{" "}
-                  <strong>{developmentOtp}</strong>
-                </p>
-              ) : null}
-
-              <input
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="Code OTP à 6 chiffres"
-                value={otpCode}
-                onChange={(event) =>
-                  setOtpCode(event.target.value.replace(/\D/g, ""))
-                }
-                required
-                className="rounded-xl border border-black/15 px-4 py-3"
-              />
+              <div className="grid gap-2">
+                <label
+                  htmlFor="login-password"
+                  className="text-sm font-semibold"
+                >
+                  Mot de passe
+                </label>
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Saisissez votre mot de passe"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                />
+              </div>
 
               <button
                 type="submit"
-                disabled={loading || phoneSecondsRemaining <= 0}
-                className="rounded-full bg-black px-6 py-3 font-semibold text-ivory disabled:opacity-50"
+                disabled={loading}
+                className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-gold/15 transition duration-200 hover:-translate-y-0.5 hover:bg-gold/90 hover:shadow-gold/25 focus:outline-none focus:ring-4 focus:ring-gold/25 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Vérifier et se connecter
+                {loading ? "Connexion en cours..." : "Se connecter"}
+                {!loading && <span aria-hidden="true">→</span>}
               </button>
-            </>
+            </form>
           ) : null}
-        </form>
-      ) : null}
 
-      {message ? (
-        <p className="mt-5" role="status" aria-live="polite">
-          {message}
-        </p>
-      ) : null}
+          {/* Email two-factor authentication */}
+          {mode === "EMAIL" && emailStep === "TWO_FACTOR" ? (
+            <form onSubmit={confirmTwoFactor} className="mt-7 grid gap-5">
+              <div className="rounded-xl border border-gold/30 bg-gold/5 p-4">
+                <p className="text-sm font-medium leading-6">
+                  Confirmez votre connexion avec le code envoyé à votre
+                  téléphone.
+                </p>
+              </div>
 
-      <p className="mt-6">
-        <Link to="/mot-de-passe-oublie">Mot de passe oublié ?</Link>
-      </p>
+              {developmentOtp ? (
+                <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
+                  <span className="font-semibold">Mode développement</span>
+                  <span className="mt-1 block">
+                    Code : <strong className="tracking-widest">{developmentOtp}</strong>
+                  </span>
+                </p>
+              ) : null}
 
-      <p className="mt-3">
-        Pas encore de compte ? <Link to="/inscription">Créer un compte</Link>
-      </p>
+              <div className="grid gap-2">
+                <label htmlFor="email-otp" className="text-sm font-semibold">
+                  Code de sécurité
+                </label>
+                <input
+                  id="email-otp"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  placeholder="• • • • • •"
+                  value={otpCode}
+                  onChange={(event) =>
+                    setOtpCode(event.target.value.replace(/\D/g, ""))
+                  }
+                  required
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-4 text-center text-xl font-bold tracking-[0.5em] text-foreground outline-none transition placeholder:text-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                />
+                <p className="text-xs text-foreground/50">
+                  Saisissez les 6 chiffres du code reçu.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-black transition duration-200 hover:bg-gold/90 focus:outline-none focus:ring-4 focus:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? "Vérification..." : "Vérifier et se connecter"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => selectMode("EMAIL")}
+                className="mx-auto rounded-lg px-4 py-2 text-sm font-medium text-foreground/60 transition hover:text-gold"
+              >
+                ← Retour à la connexion
+              </button>
+            </form>
+          ) : null}
+
+          {/* Phone and OTP login */}
+          {mode === "PHONE" ? (
+            <form onSubmit={loginWithPhone} className="mt-7 grid gap-5">
+              <div className="grid gap-2">
+                <label htmlFor="login-phone" className="text-sm font-semibold">
+                  Numéro de téléphone
+                </label>
+                <input
+                  id="login-phone"
+                  type="tel"
+                  autoComplete="tel"
+                  placeholder="+213 ..."
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  required
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                />
+                <p className="text-xs leading-5 text-foreground/50">
+                  Utilisez le numéro associé à votre compte.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void sendPhoneOtp()}
+                disabled={loading || !phone.trim() || phoneSecondsRemaining > 0}
+                className="w-full rounded-xl border border-gold/50 bg-gold/5 px-5 py-3.5 text-sm font-semibold text-foreground transition duration-200 hover:border-gold hover:bg-gold/10 focus:outline-none focus:ring-4 focus:ring-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {phoneSecondsRemaining > 0
+                  ? `Nouveau code dans ${phoneSecondsRemaining}s`
+                  : phoneOtpExpiresAt
+                    ? "Renvoyer le code"
+                    : "Recevoir le code"}
+              </button>
+
+              {phoneOtpExpiresAt ? (
+                <>
+                  <div className="rounded-xl border border-foreground/10 bg-foreground/[0.03] p-4">
+                    <p className="text-sm leading-6 text-foreground/70">
+                      {phoneSecondsRemaining > 0
+                        ? `Code valide pendant ${Math.ceil(
+                            phoneSecondsRemaining / 60
+                          )} minute(s).`
+                        : "Le code a expiré. Demandez-en un nouveau."}
+                    </p>
+                    {phoneSecondsRemaining > 0 ? (
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-foreground/10">
+                        <div
+                          className="h-full rounded-full bg-gold transition-all duration-1000"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              (phoneSecondsRemaining /
+                                getOtpTtlSeconds(
+                                  phoneOtpExpiresAt
+                                    ? (phoneOtpExpiresAt - Date.now()) / 1000
+                                    : 300
+                                )) *
+                                100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {developmentOtp ? (
+                    <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-foreground">
+                      <span className="font-semibold">Mode développement</span>
+                      <span className="mt-1 block">
+                        Code : <strong className="tracking-widest">{developmentOtp}</strong>
+                      </span>
+                    </p>
+                  ) : null}
+
+                  <div className="grid gap-2">
+                    <label htmlFor="phone-otp" className="text-sm font-semibold">
+                      Code OTP
+                    </label>
+                    <input
+                      id="phone-otp"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      placeholder="• • • • • •"
+                      value={otpCode}
+                      onChange={(event) =>
+                        setOtpCode(event.target.value.replace(/\D/g, ""))
+                      }
+                      required
+                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-4 text-center text-xl font-bold tracking-[0.5em] text-foreground outline-none transition placeholder:text-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || phoneSecondsRemaining <= 0}
+                    className="w-full rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-gold/15 transition duration-200 hover:bg-gold/90 focus:outline-none focus:ring-4 focus:ring-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading ? "Vérification..." : "Vérifier et se connecter"}
+                  </button>
+                </>
+              ) : null}
+            </form>
+          ) : null}
+
+          {/* Status message */}
+          {message ? (
+            <p
+              className="mt-5 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-4 py-3 text-sm leading-6 text-foreground"
+              role="status"
+              aria-live="polite"
+            >
+              {message}
+            </p>
+          ) : null}
+
+          {/* Account links */}
+          <div className="mt-7 space-y-4 border-t border-foreground/10 pt-6 text-center">
+            <p>
+              <Link
+                to="/mot-de-passe-oublie"
+                className="text-sm font-medium text-foreground/60 underline decoration-foreground/20 underline-offset-4 transition hover:text-gold hover:decoration-gold"
+              >
+                Mot de passe oublié ?
+              </Link>
+            </p>
+
+            <p className="text-sm text-foreground/60">
+              Pas encore de compte ?{" "}
+              <Link
+                to="/inscription"
+                className="font-semibold text-gold transition hover:underline hover:underline-offset-4"
+              >
+                Créer un compte
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
+
 }

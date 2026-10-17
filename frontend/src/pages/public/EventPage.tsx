@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useLanguage } from "../../hooks/useLanguage";
 import { getEventTypes } from "../../services/catalog.service";
 import type { EventType } from "../../types/catalog.types";
+import BackButton from "../../components/common/BackButton";
 
 export default function EventPage() {
   const { type } = useParams();
@@ -27,6 +28,9 @@ export default function EventPage() {
 
   return (
     <section className="min-h-[60vh] bg-background px-6 py-16 text-foreground">
+      <div className="fixed left-4 top-20 z-50 sm:left-6 sm:top-24">
+        <BackButton fallback="/" label="Retour à l’accueil" />
+      </div>
       <div className="mx-auto max-w-4xl">
         <h1 className="text-5xl font-bold text-gold">
           {eventType.name[locale]}

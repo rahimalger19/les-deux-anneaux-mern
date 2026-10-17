@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCurrency } from "../../hooks/useCurrency";
 import { useLanguage } from "../../hooks/useLanguage";
@@ -25,7 +25,30 @@ export default function Header() {
   const { language, setLanguage, t } = useLanguage();
   const { currency, setCurrency } = useCurrency();
   const { user } = useAuth();
+  
+  const [profileImageError, setProfileImageError] = useState(false);
 
+useEffect(() => {
+  setProfileImageError(false);
+}, [user?.profilePhotoUrl]);
+
+const backendUrl = (import.meta.env.VITE_API_URL || "")
+  .replace(/\/api\/?$/, "")
+  .replace(/\/$/, "");
+
+const profilePhotoUrl = user?.profilePhotoUrl
+  ? user.profilePhotoUrl.startsWith("http")
+    ? user.profilePhotoUrl
+    : `${backendUrl}${user.profilePhotoUrl}`
+  : "";
+  const isClient = user?.role === "CLIENT";
+  const profileInitials = (user?.name || "")
+  .split(" ")
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((part) => part[0])
+  .join("")
+  .toUpperCase();
   const logo =
     resolvedTheme === "dark"
       ? "/images/logo-dark-mode.jpg"
@@ -100,30 +123,50 @@ const dashboardLabel =
         </select>
 
         {/* Authentication links */}
-        {user ? (
-          <Link
-            to={dashboardTo}
-            className="rounded-full border border-foreground/20 px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-gold hover:text-gold"
-          >
-            {dashboardLabel}
-          </Link>
-        ) : (
-          <>
-            <Link
-              to="/connexion"
-              className="text-sm font-semibold text-foreground transition hover:text-gold"
-            >
-              {t("common.login")}
-            </Link>
+{user ? (
+  isClient ? (
+    <Link
+      to="/espace/profil"
+      className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gold/60 bg-espresso text-sm font-bold text-ivory shadow-sm transition hover:scale-105 hover:border-gold hover:ring-2 hover:ring-gold/30"
+      aria-label={`Ouvrir le profil de ${user.name}`}
+      title={user.name}
+    >
+      {profilePhotoUrl && !profileImageError ? (
+        <img
+          src={profilePhotoUrl}
+          alt=""
+          className="h-full w-full object-cover"
+          onError={() => setProfileImageError(true)}
+        />
+      ) : (
+        <span>{profileInitials || "?"}</span>
+      )}
+    </Link>
+  ) : (
+    <Link
+      to={dashboardTo}
+      className="rounded-full border border-foreground/20 px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-gold hover:text-gold"
+    >
+      {dashboardLabel}
+    </Link>
+  )
+) : (
+  <>
+    <Link
+      to="/connexion"
+      className="text-sm font-semibold text-foreground transition hover:text-gold"
+    >
+      {t("common.login")}
+    </Link>
 
-            <Link
-              to="/inscription"
-              className="rounded-full border border-foreground/20 px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-gold hover:text-gold"
-            >
-              {t("common.register")}
-            </Link>
-          </>
-        )}
+    <Link
+      to="/inscription"
+      className="rounded-full border border-foreground/20 px-4 py-2.5 text-sm font-semibold text-foreground transition hover:border-gold hover:text-gold"
+    >
+      {t("common.register")}
+    </Link>
+  </>
+)}
 
         {/* Reservation button */}
         <Link
@@ -163,33 +206,56 @@ const dashboardLabel =
         ))}
 
         {/* Authentication links */}
-        {user ? (
-          <Link
-            to={dashboardTo}
-            onClick={() => setMenuOpen(false)}
-            className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:text-gold"
-          >
-            {dashboardLabel}
-          </Link>
+{user ? (
+  isClient ? (
+    <Link
+      to="/espace/profil"
+      onClick={() => setMenuOpen(false)}
+      className="flex items-center gap-3 rounded-lg px-4 py-3 font-semibold text-foreground transition hover:bg-foreground/5 hover:text-gold"
+    >
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gold/60 bg-espresso text-sm font-bold text-ivory">
+        {profilePhotoUrl && !profileImageError ? (
+          <img
+            src={profilePhotoUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            onError={() => setProfileImageError(true)}
+          />
         ) : (
-          <>
-            <Link
-              to="/connexion"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:text-gold"
-            >
-              {t("common.login")}
-            </Link>
-
-            <Link
-              to="/inscription"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:text-gold"
-            >
-              {t("common.register")}
-            </Link>
-          </>
+          profileInitials || "?"
         )}
+      </span>
+
+      <span>Mon profil</span>
+    </Link>
+  ) : (
+    <Link
+      to={dashboardTo}
+      onClick={() => setMenuOpen(false)}
+      className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:bg-foreground/5 hover:text-gold"
+    >
+      {dashboardLabel}
+    </Link>
+  )
+) : (
+  <>
+    <Link
+      to="/connexion"
+      onClick={() => setMenuOpen(false)}
+      className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:text-gold"
+    >
+      {t("common.login")}
+    </Link>
+
+    <Link
+      to="/inscription"
+      onClick={() => setMenuOpen(false)}
+      className="rounded-lg px-4 py-3 font-semibold text-foreground transition hover:text-gold"
+    >
+      {t("common.register")}
+    </Link>
+  </>
+)}
 
         {/* Mobile selectors */}
         <div className="mt-3 grid grid-cols-3 gap-2">

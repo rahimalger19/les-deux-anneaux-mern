@@ -74,7 +74,13 @@ export default function ClientLayout() {
     ))}
   </div>
 </nav>
-
+         <div className="mt-5 border-t border-foreground/15 pt-5">
+          <NavLink
+            to="/"
+            className="block rounded-xl px-4 py-3 hover:bg-foreground/10"
+          >
+            Voir le site
+          </NavLink>
         <button
   type="button"
   onClick={handleLogout}
@@ -82,6 +88,7 @@ export default function ClientLayout() {
 >
   {t("common.logout")}
 </button>
+</div>
       </aside>
 
       <section className="min-h-screen pb-24 md:ml-64 md:pb-0">

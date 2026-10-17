@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { registerUser } from "../../services/auth.service";
+import BackButton from "../../components/common/BackButton";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -41,125 +42,259 @@ export default function RegisterPage() {
     }
   }
 
+  
   return (
-    <main className="mx-auto max-w-xl px-6 py-16">
-      <h1 className="font-serif text-4xl">Créer un compte</h1>
+    <main className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden bg-background px-4 py-12 text-foreground sm:px-6 lg:py-16">
+      <div className="fixed left-4 top-20 z-50 sm:left-6 sm:top-24">
+                    <BackButton fallback="/" label="Retour à l’accueil" />
+                  </div>
+      {/* Decorative background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-gold/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-32 -right-24 h-80 w-80 rounded-full bg-gold/10 blur-3xl"
+      />
 
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
-        <input
-          placeholder="Nom complet"
-          type="text"
-          autoComplete="name"
-          minLength={2}
-          maxLength={120}
-          value={form.name}
-          onChange={(event) =>
-            setForm({ ...form, name: event.target.value })
-          }
-          required
-          className="rounded-xl border border-black/15 px-4 py-3"
-        />
+      <section className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-foreground/10 bg-background shadow-2xl shadow-black/10">
+        {/* Gold accent */}
+        <div className="h-1 w-full bg-gold" />
 
-        <input
-          placeholder="Email"
-          type="email"
-          autoComplete="email"
-          value={form.email}
-          onChange={(event) =>
-            setForm({ ...form, email: event.target.value })
-          }
-          required
-          className="rounded-xl border border-black/15 px-4 py-3"
-        />
+        <div className="px-6 py-9 sm:px-9 sm:py-10">
+          {/* Heading */}
+          <div className="mb-8 text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.3em] text-gold">
+              Les Deux Anneaux
+            </p>
 
-        <input
-          placeholder="Téléphone"
-          type="tel"
-          autoComplete="tel"
-          minLength={8}
-          value={form.phone}
-          onChange={(event) =>
-            setForm({ ...form, phone: event.target.value })
-          }
-          className="rounded-xl border border-black/15 px-4 py-3"
-        />
+            <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">
+              Créer un compte
+            </h1>
 
-        <input
-          placeholder="Mot de passe"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          value={form.password}
-          onChange={(event) =>
-            setForm({ ...form, password: event.target.value })
-          }
-          required
-          className="rounded-xl border border-black/15 px-4 py-3"
-        />
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-foreground/60">
+              Rejoignez-nous pour découvrir nos services et gérer vos
+              réservations en toute simplicité.
+            </p>
 
-        <select
-          value={form.language}
-          onChange={(event) =>
-            setForm({
-              ...form,
-              language: event.target.value as "fr-DZ" | "ar-DZ" | "en",
-            })
-          }
-          className="rounded-xl border border-black/15 px-4 py-3"
-        >
-          <option value="fr-DZ">Français</option>
-          <option value="ar-DZ">العربية</option>
-          <option value="en">English</option>
-        </select>
+            <div className="mx-auto mt-5 h-px w-16 bg-gold/70" />
+          </div>
 
-        <select
-          value={form.currency}
-          onChange={(event) =>
-            setForm({
-              ...form,
-              currency: event.target.value as "DZD" | "EUR" | "USD",
-            })
-          }
-          className="rounded-xl border border-black/15 px-4 py-3"
-        >
-          <option value="DZD">DZD</option>
-          <option value="EUR">EUR</option>
-          <option value="USD">USD</option>
-        </select>
+          {/* Registration form */}
+          <form onSubmit={handleSubmit} className="grid gap-5">
+            <div className="grid gap-2">
+              <label htmlFor="register-name" className="text-sm font-semibold">
+                Nom complet
+              </label>
 
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={form.newsletterOptIn}
-            onChange={(event) =>
-              setForm({
-                ...form,
-                newsletterOptIn: event.target.checked,
-              })
-            }
-          />
+              <input
+                id="register-name"
+                placeholder="Votre nom complet"
+                type="text"
+                autoComplete="name"
+                minLength={2}
+                maxLength={120}
+                value={form.name}
+                onChange={(event) =>
+                  setForm({ ...form, name: event.target.value })
+                }
+                required
+                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+              />
+            </div>
 
-          <span>Je souhaite recevoir la newsletter.</span>
-        </label>
+            <div className="grid gap-2">
+              <label
+                htmlFor="register-email"
+                className="text-sm font-semibold"
+              >
+                Adresse email
+              </label>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-full bg-black px-6 py-3 font-semibold text-ivory"
-        >
-          {loading ? "Création..." : "Créer mon compte"}
-        </button>
-      </form>
+              <input
+                id="register-email"
+                placeholder="exemple@email.com"
+                type="email"
+                autoComplete="email"
+                value={form.email}
+                onChange={(event) =>
+                  setForm({ ...form, email: event.target.value })
+                }
+                required
+                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+              />
+            </div>
 
-      {message ? (
-  <p className="mt-5" role="status" aria-live="polite">
-    {message}
-  </p>
-) : null}
+            <div className="grid gap-2">
+              <label
+                htmlFor="register-phone"
+                className="text-sm font-semibold"
+              >
+                Téléphone
+                <span className="ml-2 font-normal text-foreground/40">
+                  (facultatif)
+                </span>
+              </label>
 
-      <p className="mt-6">
-        Déjà inscrit ? <Link to="/connexion">Se connecter</Link>
-      </p>
+              <input
+                id="register-phone"
+                placeholder="+213 ..."
+                type="tel"
+                autoComplete="tel"
+                minLength={8}
+                value={form.phone}
+                onChange={(event) =>
+                  setForm({ ...form, phone: event.target.value })
+                }
+                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label
+                htmlFor="register-password"
+                className="text-sm font-semibold"
+              >
+                Mot de passe
+              </label>
+
+              <input
+                id="register-password"
+                placeholder="Au moins 8 caractères"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                value={form.password}
+                onChange={(event) =>
+                  setForm({ ...form, password: event.target.value })
+                }
+                required
+                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3.5 text-sm text-foreground outline-none transition placeholder:text-foreground/35 hover:border-foreground/25 focus:border-gold focus:ring-4 focus:ring-gold/15"
+              />
+
+              <p className="text-xs leading-5 text-foreground/50">
+                Utilisez au moins 8 caractères.
+              </p>
+            </div>
+
+            {/* Preferences */}
+            <div className="grid gap-4 rounded-2xl border border-foreground/10 bg-foreground/[0.025] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                Préférences
+              </p>
+
+              <div className="grid gap-2">
+                <label
+                  htmlFor="register-language"
+                  className="text-sm font-medium"
+                >
+                  Langue préférée
+                </label>
+
+                <select
+                  id="register-language"
+                  value={form.language}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      language: event.target.value as
+                        | "fr-DZ"
+                        | "ar-DZ"
+                        | "en",
+                    })
+                  }
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-gold focus:ring-4 focus:ring-gold/15"
+                >
+                  <option value="fr-DZ">Français</option>
+                  <option value="ar-DZ">العربية</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+
+              <div className="grid gap-2">
+                <label
+                  htmlFor="register-currency"
+                  className="text-sm font-medium"
+                >
+                  Devise préférée
+                </label>
+
+                <select
+                  id="register-currency"
+                  value={form.currency}
+                  onChange={(event) =>
+                    setForm({
+                      ...form,
+                      currency: event.target.value as "DZD" | "EUR" | "USD",
+                    })
+                  }
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-gold focus:ring-4 focus:ring-gold/15"
+                >
+                  <option value="DZD">DZD — Dinar algérien</option>
+                  <option value="EUR">EUR — Euro</option>
+                  <option value="USD">USD — Dollar américain</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Newsletter */}
+            <label className="group flex cursor-pointer items-start gap-3 rounded-xl border border-transparent p-3 transition hover:border-foreground/10 hover:bg-foreground/[0.025]">
+              <input
+                type="checkbox"
+                checked={form.newsletterOptIn}
+                onChange={(event) =>
+                  setForm({
+                    ...form,
+                    newsletterOptIn: event.target.checked,
+                  })
+                }
+                className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-[#C6A15B] focus:ring-2 focus:ring-gold/30"
+              />
+
+              <span className="text-sm leading-6 text-foreground/70 transition group-hover:text-foreground">
+                Je souhaite recevoir la newsletter et les actualités de
+                Les Deux Anneaux.
+              </span>
+            </label>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gold px-6 py-3.5 text-sm font-bold text-black shadow-lg shadow-gold/15 transition duration-200 hover:-translate-y-0.5 hover:bg-gold/90 hover:shadow-gold/25 focus:outline-none focus:ring-4 focus:ring-gold/25 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Création en cours..." : "Créer mon compte"}
+              {!loading && <span aria-hidden="true">→</span>}
+            </button>
+          </form>
+
+          {/* Status message */}
+          {message ? (
+            <p
+              className="mt-5 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-4 py-3 text-sm leading-6 text-foreground"
+              role="status"
+              aria-live="polite"
+            >
+              {message}
+            </p>
+          ) : null}
+
+          {/* Login link */}
+          <div className="mt-7 border-t border-foreground/10 pt-6 text-center">
+            <p className="text-sm text-foreground/60">
+              Déjà inscrit ?{" "}
+              <Link
+                to="/connexion"
+                className="font-semibold text-gold transition hover:underline hover:underline-offset-4"
+              >
+                Se connecter
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
+
 }
