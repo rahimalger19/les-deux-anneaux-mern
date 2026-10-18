@@ -46,6 +46,9 @@ function getTransporter() {
   rejectUnauthorized:
     process.env.SMTP_ALLOW_INVALID_CERTS !== "true",
 },
+connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 20000,
 });
 }
 

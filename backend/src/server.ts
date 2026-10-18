@@ -50,6 +50,9 @@ import { startMaintenanceJobs } from "./services/maintenance.service";
 import superSystemRoutes from "./routes/super-system.routes";
 import legalRoutes from "./routes/legal.routes";
 import currencyRoutes from "./routes/currency.routes";
+import { setDefaultResultOrder } from "node:dns";
+
+setDefaultResultOrder("ipv4first");
 
 dotenv.config();
 
