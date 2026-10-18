@@ -38,7 +38,7 @@ function getTransporter() {
   return nodemailer.createTransport({
   host: smtp.host,
   port: smtp.port,
-  secure: smtp.port === 465,
+  secure: smtp.port === 587,
   auth: {
     user: smtp.user,
     pass: smtp.password,
