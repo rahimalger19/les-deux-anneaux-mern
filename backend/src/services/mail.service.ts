@@ -32,6 +32,8 @@ function getSmtpConfiguration() {
 
 function getTransporter() {
   const smtp = getSmtpConfiguration();
+  const tlsServername =
+  process.env.SMTP_TLS_SERVERNAME?.trim() || smtp.host;
 
   return nodemailer.createTransport({
   host: smtp.host,
@@ -42,9 +44,8 @@ function getTransporter() {
     pass: smtp.password,
   },
   tls: {
-  servername: smtp.host,
-  rejectUnauthorized:
-    process.env.SMTP_ALLOW_INVALID_CERTS !== "true",
+  servername: tlsServername,
+  rejectUnauthorized: true,
 },
 connectionTimeout: 10000,
   greetingTimeout: 10000,
