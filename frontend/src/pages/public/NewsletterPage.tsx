@@ -142,7 +142,7 @@ export default function NewsletterPage() {
 
     {/* Back button */}
     <div className="fixed left-4 top-20 z-50 sm:left-6 sm:top-24">
-      <BackButton fallback="/" label="Retour à l’accueil" />
+      <BackButton  label="Retour à l’accueil" />
     </div>
 
     <section className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-foreground/10 bg-background shadow-2xl shadow-black/10">

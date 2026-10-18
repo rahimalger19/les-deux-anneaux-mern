@@ -1,23 +1,17 @@
+
 import { useNavigate } from "react-router-dom";
 
 type BackButtonProps = {
-  fallback?: string;
   label?: string;
 };
 
 export default function BackButton({
-  fallback = "/",
-  label = "Retour",
+  label = "Retour à l’accueil",
 }: BackButtonProps) {
   const navigate = useNavigate();
 
   function handleBack() {
-    if (window.history.length > 1) {
-      navigate(-1);
-      return;
-    }
-
-    navigate(fallback);
+    navigate("/");
   }
 
   return (
