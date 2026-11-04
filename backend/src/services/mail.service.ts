@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { setDefaultResultOrder } from "node:dns";
+import { resolve4 } from "node:dns/promises";
 import mjml2html from "mjml";
 import {
   EMAIL_TEMPLATE_KEYS,
@@ -8,51 +8,57 @@ import {
   type EmailTemplateLanguage,
 } from "../models/EmailTemplate";
 import { EmailLog } from "../models/EmailLog";
-setDefaultResultOrder("ipv4first");
+
 
 function getSmtpConfiguration() {
-  const host = process.env.SMTP_HOST?.trim();
   const user = process.env.SMTP_USER?.trim();
-  const password = process.env.SMTP_PASSWORD?.trim();
   const from = process.env.SMTP_FROM?.trim();
-  const port = Number(process.env.SMTP_PORT || 587);
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN?.trim();
 
-  if (!host || !user || !password || !from) {
-    throw new Error("SMTP configuration is incomplete in backend/.env");
+  if (!user || !from || !clientId || !clientSecret || !refreshToken) {
+    throw new Error("Google OAuth SMTP configuration is incomplete");
   }
 
   return {
-    host,
     user,
-    password,
     from,
-    port,
+    clientId,
+    clientSecret,
+    refreshToken,
   };
 }
 
-function getTransporter() {
+async function getTransporter() {
   const smtp = getSmtpConfiguration();
-  const tlsServername =
-  process.env.SMTP_TLS_SERVERNAME?.trim() || smtp.host;
+  const addresses = await resolve4("smtp.gmail.com");
+  const gmailIpv4 = addresses[0];
+
+  if (!gmailIpv4) {
+    throw new Error("Unable to resolve Gmail IPv4 address");
+  }
 
   return nodemailer.createTransport({
-  host: smtp.host,
-  port: smtp.port,
-  secure: smtp.port === 465,
-  auth: {
-    user: smtp.user,
-    pass: smtp.password,
-  },
-  tls: {
-  servername: tlsServername,
-  rejectUnauthorized: true,
-},
-connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 20000,
-});
+    host: gmailIpv4,
+    port: 465,
+    secure: true,
+    auth: {
+      type: "OAuth2",
+      user: smtp.user,
+      clientId: smtp.clientId,
+      clientSecret: smtp.clientSecret,
+      refreshToken: smtp.refreshToken,
+    },
+    tls: {
+      servername: "smtp.gmail.com",
+      rejectUnauthorized: true,
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 30000,
+  });
 }
-
 const defaults: Record<
   EmailTemplateKey,
   Record<EmailTemplateLanguage, { subject: string; content: string }>
@@ -233,7 +239,9 @@ async function sendTemplateEmail(data: {
 );
 
   try {
-    await getTransporter().sendMail({
+    const transporter = await getTransporter();
+
+await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: data.to,
       subject,
@@ -263,19 +271,19 @@ async function sendTemplateEmail(data: {
 }
 
 export function getSmtpStatus() {
-  const smtp = {
-    host: process.env.SMTP_HOST?.trim(),
-    user: process.env.SMTP_USER?.trim(),
-    password: process.env.SMTP_PASSWORD?.trim(),
-    from: process.env.SMTP_FROM?.trim(),
-    port: Number(process.env.SMTP_PORT || 587),
-  };
+  const user = process.env.SMTP_USER?.trim();
+  const from = process.env.SMTP_FROM?.trim();
+  const clientId = process.env.GOOGLE_CLIENT_ID?.trim();
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN?.trim();
 
   return {
-    hostConfigured: Boolean(smtp.host),
-    port: smtp.port,
-    authConfigured: Boolean(smtp.user && smtp.password),
-    fromConfigured: Boolean(smtp.from),
+    hostConfigured: true,
+    port: 465,
+    authConfigured: Boolean(
+      user && clientId && clientSecret && refreshToken
+    ),
+    fromConfigured: Boolean(from),
   };
 }
 
@@ -283,7 +291,9 @@ export async function sendSmtpTestEmail(to: string) {
   const subject = "Test SMTP - Les Deux Anneaux";
 
   try {
-    await getTransporter().sendMail({
+    const transporter = await getTransporter();
+
+await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
       subject,
@@ -413,7 +423,9 @@ export async function sendNewsletterCampaignEmail(data: {
   `;
 
   try {
-    await getTransporter().sendMail({
+    const transporter = await getTransporter();
+
+await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to: data.to,
       subject: data.subject,

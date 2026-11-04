@@ -29,6 +29,7 @@ export const translations = {
     "account.clientSpace": "Mon espace",
     "account.administration": "Administration",
     "account.superAdministration": "Super administration",
+    
 
     "footer.description":
       "Salle dînatoire pour mariages, fiançailles, réceptions familiales et événements professionnels.",
