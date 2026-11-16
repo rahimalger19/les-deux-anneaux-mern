@@ -121,6 +121,13 @@ export default function ClientLayout() {
         </NavLink>
       ))}
     </div>
+        <NavLink
+      to="/"
+      onClick={() => setMobileMenuOpen(false)}
+      className="mt-3 block rounded-xl border border-foreground/20 px-3 py-3 text-center text-sm font-semibold"
+    >
+      ⌂ Voir le site
+    </NavLink>
   </div>
 ) : null}
 
