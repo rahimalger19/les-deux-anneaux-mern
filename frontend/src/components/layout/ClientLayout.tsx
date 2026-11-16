@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useLanguage } from "../../hooks/useLanguage";
@@ -34,10 +35,15 @@ const mobileLinks = links.filter((link) =>
   ].includes(link.to)
 );
 
+const moreMobileLinks = links.filter(
+  (link) => !mobileLinks.some((mobileLink) => mobileLink.to === link.to)
+);
+
 export default function ClientLayout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   function handleLogout() {
   navigate("/", { replace: true });
@@ -94,24 +100,57 @@ export default function ClientLayout() {
       <section className="min-h-screen pb-24 md:ml-64 md:pb-0">
         <Outlet />
       </section>
+    {mobileMenuOpen ? (
+  <div className="fixed inset-x-0 bottom-[73px] z-50 max-h-[65vh] overflow-y-auto border-t border-foreground/15 bg-ivory p-4 shadow-2xl dark:bg-black md:hidden">
+    <div className="grid grid-cols-2 gap-2">
+      {moreMobileLinks.map((link) => (
+        <NavLink
+          key={link.to}
+          to={link.to}
+          onClick={() => setMobileMenuOpen(false)}
+          className={({ isActive }) =>
+            `rounded-xl px-3 py-3 text-sm ${
+              isActive
+                ? "bg-gold font-semibold text-black"
+                : "bg-foreground/5 text-foreground"
+            }`
+          }
+        >
+          <span className="mr-2">{link.icon}</span>
+          {t(link.key)}
+        </NavLink>
+      ))}
+    </div>
+  </div>
+) : null}
 
-      <nav className="fixed inset-x-0 bottom-0 z-50 flex justify-around border-t border-foreground/15 bg-ivory px-2 py-2 dark:bg-black md:hidden">
-        {mobileLinks.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.to === "/espace"}
-            className={({ isActive }) =>
-              `flex min-w-14 flex-col items-center rounded-lg px-2 py-1 text-xs ${
-                isActive ? "text-gold" : "text-foreground/65"
-              }`
-            }
-          >
-            <span className="text-lg">{link.icon}</span>
-            <span>{t(link.key)}</span>
-          </NavLink>
-        ))}
-      </nav>
+<nav className="fixed inset-x-0 bottom-0 z-50 flex justify-around border-t border-foreground/15 bg-ivory px-1 py-2 dark:bg-black md:hidden">
+  {mobileLinks.map((link) => (
+    <NavLink
+      key={link.to}
+      to={link.to}
+      end={link.to === "/espace"}
+      className={({ isActive }) =>
+        `flex min-w-14 flex-col items-center rounded-lg px-1 py-1 text-xs ${
+          isActive ? "text-gold" : "text-foreground/65"
+        }`
+      }
+    >
+      <span className="text-lg">{link.icon}</span>
+      <span>{t(link.key)}</span>
+    </NavLink>
+  ))}
+
+  <button
+    type="button"
+    onClick={() => setMobileMenuOpen((open) => !open)}
+    className="flex min-w-14 flex-col items-center rounded-lg px-1 py-1 text-xs text-foreground/65"
+  >
+    <span className="text-lg">☰</span>
+    <span>Menu</span>
+  </button>
+</nav>
+    
     </div>
   );
 }
