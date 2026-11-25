@@ -311,9 +311,11 @@ export default function SuperCurrenciesPage() {
                 className="flex items-center justify-between gap-4 rounded-xl border border-foreground/15 p-4"
               >
                 <p>
-                  <span className="mr-3 text-2xl">
-                    {countryFlag(country.code)}
-                  </span>
+                  <img
+  src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`}
+  alt={`Drapeau ${country.name}`}
+  className="mr-3 inline-block h-5 w-7 rounded-sm object-cover"
+/>
                   <strong>{country.name}</strong>
                   <span className="ml-2 text-sm text-foreground/60">
                     {country.code}
