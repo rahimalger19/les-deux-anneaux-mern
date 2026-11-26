@@ -27,8 +27,8 @@ export async function getMyGalleryFavorites(req: Request, res: Response) {
 export async function addMyGalleryFavorite(req: Request, res: Response) {
   try {
     const galleryItemId = getParam(req.params.itemId);
-    const collection =
-      String(req.body.collection || "Inspiration").trim() || "Inspiration";
+    const collectionName =
+      String(req.body.collectionName || "Inspiration").trim() || "Inspiration";
 
     const item = await GalleryItem.findOne({
       _id: galleryItemId,
@@ -46,13 +46,13 @@ export async function addMyGalleryFavorite(req: Request, res: Response) {
       {
         userId: req.user?.id,
         galleryItemId: item._id,
-        collection,
+        collectionName,
       },
       {
         $setOnInsert: {
           userId: req.user?.id,
           galleryItemId: item._id,
-          collection,
+          collectionName,
         },
       },
       {
@@ -62,7 +62,9 @@ export async function addMyGalleryFavorite(req: Request, res: Response) {
     );
 
     return res.status(201).json({ success: true, favorite });
-  } catch {
+  } catch (error) {
+    console.error("Add gallery favourite error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Unable to save gallery favourite",
