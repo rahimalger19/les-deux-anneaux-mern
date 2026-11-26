@@ -111,12 +111,16 @@ export default function BookingsPage() {
     });
   }, [bookings, search, status]);
 
-  if (loading) {
-    return <main className="p-10">Chargement des réservations…</main>;
-  }
+if (loading) {
+  return (
+    <main className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-10">
+      Chargement des réservations…
+    </main>
+  );
+}
 
   return (
-    <main>
+    <main className="mx-auto max-w-6xl px-4 py-6 md:px-8 md:py-10">
       <p className="text-sm font-semibold uppercase tracking-[0.25em] text-gold">
         Espace client
       </p>
