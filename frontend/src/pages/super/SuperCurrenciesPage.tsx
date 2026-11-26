@@ -19,14 +19,7 @@ function formatDZD(value: number) {
   }).format(value);
 }
 
-function countryFlag(code: string) {
-  return String.fromCodePoint(
-    ...code
-      .toUpperCase()
-      .split("")
-      .map((letter) => 127397 + letter.charCodeAt(0))
-  );
-}
+
 
 export default function SuperCurrenciesPage() {
   const [rates, setRates] = useState<ExchangeRate[]>([]);
