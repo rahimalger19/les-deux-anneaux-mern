@@ -84,7 +84,11 @@ if (!reference) {
 
   const bookingHasPayment = (bookingId: string) =>
     payments.some((payment) => payment.bookingId._id === bookingId);
-
+  const payableBookings = bookings.filter(
+  (booking) =>
+    booking.status === "HELD" &&
+    !bookingHasPayment(booking.id)
+);
   return (
     <main className="min-h-screen bg-background px-6 py-12 text-foreground">
       <div className="mx-auto max-w-5xl">
@@ -168,13 +172,7 @@ if (!reference) {
           <h2 className="text-2xl font-bold">Créer un paiement</h2>
 
           <div className="mt-6 space-y-4">
-            {bookings
-              .filter(
-                (booking) =>
-                  booking.status === "HELD" &&
-                  !bookingHasPayment(booking.id)
-              )
-              .map((booking) => (
+            {payableBookings.map((booking) => (
                 <article
                   key={booking.id}
                   className="rounded-2xl border border-foreground/15 p-6"
@@ -204,8 +202,8 @@ if (!reference) {
                     </select>
                       
                       {booking.pricingMarket === "DIASPORA" && (
-  <select
-    value={payerIds[booking.id] || ""}
+                   <select
+                     value={payerIds[booking.id] || ""}                 
     onChange={(event) =>
       setPayerIds((current) => ({
         ...current,
@@ -213,35 +211,35 @@ if (!reference) {
       }))
     }
     className="rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-  >
-    <option value="">Je paie moi-même</option>
-
-    {payers
-      .filter(
+                   >
+                     <option value="">Je paie moi-même</option>
+                 
+                     {payers
+                       .filter(                 
         (payer) =>
           payer.bookingId._id === booking.id &&
           payer.paymentMethod === (methods[booking.id] || "CCP")
-      )
-      .map((payer) => (
-        <option key={payer._id} value={payer._id}>
-          {payer.name} — {payer.relationship}
-        </option>
-      ))}
-  </select>
-)}
+                       )
+                       .map((payer) => (
+                         <option key={payer._id} value={payer._id}>
+                           {payer.name} — {payer.relationship}
+                         </option>
+                       ))}
+                   </select>
+                 )}
 
-                   <input
-  type="text"
-  value={references[booking.id] || ""}
-  onChange={(event) =>
-    setReferences((current) => ({
-      ...current,
-      [booking.id]: event.target.value,
-    }))
-  }
-  placeholder="Référence du paiement"
-  className="rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
-/>
+                                 <input
+                type="text"
+                value={references[booking.id] || ""}
+                onChange={(event) =>
+                  setReferences((current) => ({
+                    ...current,
+                    [booking.id]: event.target.value,
+                  }))
+                }
+                placeholder="Référence du paiement"
+                className="rounded-xl border border-foreground/20 bg-transparent px-4 py-3"
+              />
 
                     <button
                       type="button"
@@ -256,6 +254,17 @@ if (!reference) {
                   </div>
                 </article>
               ))}
+              {payableBookings.length === 0 ? (
+  <div className="rounded-2xl border border-foreground/15 bg-foreground/5 p-6 text-foreground/70">
+    Aucune réservation n’attend actuellement un acompte.
+    <Link
+      to="/espace/nouvelle-reservation"
+      className="mt-4 inline-block font-semibold text-gold underline"
+    >
+      Créer une réservation
+    </Link>
+  </div>
+) : null}
           </div>
         </section>
       </div>
